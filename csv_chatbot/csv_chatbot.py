@@ -33,6 +33,7 @@ chatbot = create_pandas_dataframe_agent(
     df=df,
     verbose=True,
     handle_parsing_errors=True,
+    allow_dangerous_code=True,
 )
 
 # Streamlit UI
