@@ -1,5 +1,6 @@
 langchain
 langchain-openai
+langchain-experimental
 openai
 streamlit
 pandas
