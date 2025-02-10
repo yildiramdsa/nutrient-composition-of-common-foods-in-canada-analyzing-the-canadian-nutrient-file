@@ -7,3 +7,4 @@ pandas
 plotly
 statsmodels
 python-dotenv
+tabulate
