@@ -3,86 +3,136 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import pandas as pd
-# import streamlit as st
-# from langchain_experimental.agents.agent_toolkits import (
-#     create_pandas_dataframe_agent,
-# )
+import streamlit as st
+import plotly.express as px
+import statsmodels.api as sm
+from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 
-# Load environment variables from the .env file.
+# Load API key
 load_dotenv()
-
-# Retrieve the OpenAI API key from environment variables.
 openai_key = os.getenv("OPENAI_API_KEY")
+if not openai_key:
+    raise ValueError("OpenAI API key is missing. Set 'OPENAI_API_KEY' in your .env file.")
 
-# Initialize the language model with the specified API key and model name.
-llm_name = "GPT-4o"
+# Initialize LLM model
+llm_name = "gpt-4-turbo"
 model = ChatOpenAI(api_key=openai_key, model=llm_name)
 
-# Read the credit card default dataset and fill missing values with 0.
-df = pd.read_csv("../data/processed/nutrition_facts.csv").fillna(value=0)
-# print(df.head()) # We are testing to see if we can extract data from the CSV file.
+# Load dataset
+data_path = "../data/processed/nutrition_facts.csv"
+try:
+    df = pd.read_csv(data_path).fillna(0)
+except FileNotFoundError:
+    raise FileNotFoundError(f"Dataset not found at {data_path}. Check the file path.")
 
-# # Create a pandas DataFrame chatbot.
-# chatbot = create_pandas_dataframe_agent(
-#     llm=model,
-#     df=df,
-#     verbose=True,
-#     handle_parsing_errors=True,
-# )
+# Create chatbot agent
+chatbot = create_pandas_dataframe_agent(
+    llm=model,
+    df=df,
+    verbose=True,
+    handle_parsing_errors=True,
+)
 
-# # Define the prompt prefix for querying the chatbot.
-# CSV_PROMPT_PREFIX = """
-# Before answering the question, please follow these steps:
+# Streamlit UI
+st.title("Nutritional Data Explorer and Chatbot")
 
-# 1. Set the pandas display options to show all columns to ensure no data is hidden.
-# 2. Retrieve and display the column names of the DataFrame to understand the structure of the data.
-# 3. Perform any necessary data preprocessing steps, such as handling missing values, data type conversions, or filtering data.
-# 4. Analyze the DataFrame to generate insights and answer the question.
+st.subheader("Explore Food Nutrient Data")
+st.write(df.head())
 
-# Ensure to clearly explain your approach, the steps you took, and the column names you used in your analysis. Do not include code snippets in the explanation, just describe the steps.
-# """
+st.subheader("Summary Statistics")
+st.write(df.describe())
 
-# # Define the prompt suffix for querying the chatbot.
-# CSV_PROMPT_SUFFIX = """
-# - **ALWAYS** before giving the final answer, attempt at least two different methods to solve the problem.
-#   - Reflect on the results from both methods to determine if they answer the original question accurately.
-#   - If the results from the methods differ, try additional methods until you obtain consistent results.
-#   - If you are unable to achieve consistent results, state that you are not sure of the answer.
-# - If you are confident in the accuracy of the answer, create a comprehensive and well-formatted response using Markdown.
-# - **DO NOT FABRICATE AN ANSWER OR USE PRIOR KNOWLEDGE. ONLY USE THE RESULTS FROM YOUR CALCULATIONS**.
-# - **ALWAYS** include a detailed explanation of how you arrived at the answer in a section starting with "\n\nExplanation:\n".
-#   - In the explanation, mention the specific column names used to derive the final answer. Do not include code snippets in the explanation.
-# """
+# Chatbot Query Section with Session State
+st.subheader("Ask the Nutrition Chatbot")
 
-# # Streamlit application for displaying results.
-# st.title("Database Chatbots: Interacting with CSV Data")
+# Initialize session state for the chatbot answer
+if "chatbot_answer" not in st.session_state:
+    st.session_state["chatbot_answer"] = None
 
-# st.write("Dataset Preview")
-# st.write(df.head())
+# Chatbot question input
+question = st.text_area(
+    "Enter your question:",
+    "Which food categories provide the highest nutrient density per calorie, and how do they compare in terms of protein, fat, and non-sugar carbohydrates?",
+)
 
-# # User input for the question.
-# question = st.text_input(
-#     "Enter your query:",
-#     "Which education level has the highest average credit limit?",
-# )
+if st.button("Get Answer"):
+    QUERY = f"""
+    Before answering, follow these steps:
+    1. Display all column names to understand the data structure.
+    2. Handle missing values, convert data types if necessary.
+    3. Perform data analysis to derive insights.
+    {question}
+    - Always attempt at least two different methods to solve the problem.
+    - Never fabricate answers; rely solely on the dataset.
+    - Explain how you arrived at the answer, specifying column names used.
+    """
+    try:
+        res = chatbot.invoke(QUERY)
+        st.session_state["chatbot_answer"] = res.get("output", "No valid response generated.")
+    except ValueError as e:
+        st.session_state["chatbot_answer"] = "An error occurred: " + str(e)
 
-# # Run the chatbot and display the result.
-# if st.button("Run Query"):
-#     QUERY = CSV_PROMPT_PREFIX + question + CSV_PROMPT_SUFFIX
-#     try:
-#         res = chatbot.invoke(QUERY)
-#         final_result = res['output']
-#     except ValueError as e:
-#         # Check if the error is related to output parsing and handle it.
-#         if "output parsing error" in str(e):
-#             final_result = "An output parsing error occurred. Please try rephrasing your question."
-#         else:
-#             final_result = f"An error occurred: {e}"
-#     st.write("### Final Answer")
-#     st.markdown(final_result)
+# Display chatbot answer from session state
+if st.session_state["chatbot_answer"]:
+    st.write("Chatbot Answer:")
+    st.markdown(st.session_state["chatbot_answer"])
 
-# # To run the Streamlit app, use the command: streamlit run csv_database_chatbot.py
+# Filtering Section (Category and Subcategory)
+st.subheader("Filter Food Data by Category and Subcategory")
 
-# # Q:
-# # Which education level has the highest average credit limit?
-# # What is the highest credit limit?
+filtered_df = df.copy()
+
+food_categories = df["Food Category"].dropna().unique().tolist()
+
+selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories))
+
+if selected_category != "All":
+    filtered_df = df[df["Food Category"] == selected_category]
+    filtered_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
+    selected_subcategory = st.selectbox(
+        "Select Food Subcategory",
+        ["All"] + sorted(filtered_subcategories),
+        disabled=False,  # Enable subcategory selection
+    )
+else:
+    # Disable subcategory selection if no category is selected
+    filtered_subcategory = None
+    selected_subcategory = st.selectbox(
+        "Select Food Subcategory",
+        ["Select a category first"],
+        disabled=True,  # Disable subcategory selection
+    )
+
+if selected_subcategory != "All" and selected_subcategory != "Select a category first":
+    filtered_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
+
+st.write("Filtered Data:")
+st.write(filtered_df)
+
+# Scatter Plot with Trend Line
+st.subheader("Nutrient Trends: Scatter Plot with Trend Line")
+columns = df.columns[3:].tolist()
+x_column = st.selectbox("Select X-axis (Nutrient)", columns)
+y_column = st.selectbox("Select Y-axis (Nutrient)", columns)
+
+if st.button("Generate Scatter Plot"):
+    if pd.api.types.is_numeric_dtype(df[x_column]) and pd.api.types.is_numeric_dtype(df[y_column]):
+        # Fit a linear regression model
+        X = sm.add_constant(filtered_df[x_column])
+        model = sm.OLS(filtered_df[y_column], X).fit()
+        filtered_df["Trend"] = model.predict(X)
+
+        fig = px.scatter(
+            filtered_df,
+            x=x_column,
+            y=y_column,
+            hover_data=["Food Name"],
+            trendline="ols",
+            title=f"Scatter Plot: {x_column} vs. {y_column}"
+        )
+        st.plotly_chart(fig)
+    else:
+        st.warning("Please select numeric columns for both X and Y axes.")
+
+# cd csv_chatbot
+# streamlit run csv_chatbot.py
