@@ -7,6 +7,8 @@ import streamlit as st
 import plotly.express as px
 import statsmodels.api as sm
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+import warnings
+warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
 # Load API key
 load_dotenv()
@@ -87,24 +89,23 @@ food_categories = df["Food Category"].dropna().unique().tolist()
 selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories))
 
 if selected_category != "All":
-    filtered_df = df[df["Food Category"] == selected_category]
+    filtered_df = filtered_df.loc[filtered_df["Food Category"] == selected_category]  # Use .loc
     filtered_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
     selected_subcategory = st.selectbox(
         "Select Food Subcategory",
         ["All"] + sorted(filtered_subcategories),
-        disabled=False,  # Enable subcategory selection
+        disabled=False, # Enable subcategory selection
     )
 else:
     # Disable subcategory selection if no category is selected
-    filtered_subcategory = None
     selected_subcategory = st.selectbox(
         "Select Food Subcategory",
         ["Select a category first"],
-        disabled=True,  # Disable subcategory selection
+        disabled=True, # Disable subcategory selection
     )
 
 if selected_subcategory != "All" and selected_subcategory != "Select a category first":
-    filtered_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
+    filtered_df = filtered_df.loc[filtered_df["Food Subcategory"] == selected_subcategory]  # Use .loc
 
 st.write("Filtered Data:")
 st.write(filtered_df)
