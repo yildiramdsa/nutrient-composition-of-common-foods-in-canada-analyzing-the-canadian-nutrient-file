@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
 # Load API key
 load_dotenv()
-openai_key = os.getenv("OPENAI_API_KEY")
+openai_key = st.secrets["OPENAI_API_KEY"]
 if not openai_key:
     raise ValueError("OpenAI API key is missing. Set 'OPENAI_API_KEY' in your .env file.")
 
