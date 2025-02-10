@@ -21,7 +21,7 @@ llm_name = "gpt-4-turbo"
 model = ChatOpenAI(api_key=openai_key, model=llm_name)
 
 # Load dataset
-data_path = "../data/processed/nutrition_facts.csv"
+data_path = "csv_chatbot/nutrition_facts.csv"
 try:
     df = pd.read_csv(data_path).fillna(0)
 except FileNotFoundError:
