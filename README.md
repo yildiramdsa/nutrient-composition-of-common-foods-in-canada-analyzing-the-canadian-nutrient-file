@@ -15,6 +15,6 @@ https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnal
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysisPerServing/AData-DrivenNutrientAnalysis
 
 ### References
-Government of Canada. (n.d.). Canada’s food guide. Retrieved from https://food-guide.canada.ca/en/.
-Government of Canada. (n.d.). Nutrition facts tables. Retrieved from https://www.canada.ca/en/health-canada/services/food-nutrition/nutrition-labelling/nutrition-facts-tables.html.
+Government of Canada. (n.d.). Canada’s food guide. Retrieved from https://food-guide.canada.ca/en/.  
+Government of Canada. (n.d.). Nutrition facts tables. Retrieved from https://www.canada.ca/en/health-canada/services/food-nutrition/nutrition-labelling/nutrition-facts-tables.html.  
 Government of Canada. (n.d.). Canadian nutrient file. Retrieved from https://open.canada.ca/data/en/dataset/a289fd54-060c-4a96-9fcf-b1c6e706426f.
