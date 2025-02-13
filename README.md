@@ -6,7 +6,7 @@ According to Canada’s Food Guide, maintaining a balance of nutrients such as p
 ![Canada's food guide](https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/documents/vb-3.jpg)
 
 ### Objective
-The objective is to analyze food categories, subcategories, and individual foods to identify the highest and lowest levels of the 12 key nutrients from the Nutrition Facts Table, compare protein-to-fat ratios across subcategories, and evaluate nutrient density per calorie, focusing on protein, fat, and non-sugar carbohydrates.
+The objective is to analyze food categories, subcategories, and individual foods to identify the highest and lowest levels of the 12 key nutrients from the Nutrition Facts Table, compare protein-to-fat ratios across subcategories, and evaluate nutrient density per calorie for macronutrients (carbohydrates, protein, and fat).
 
 ![Nutrition facts table](https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/documents/nutrition_facts_table.jpeg)
 
