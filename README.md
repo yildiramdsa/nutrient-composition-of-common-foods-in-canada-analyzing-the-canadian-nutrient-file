@@ -11,7 +11,7 @@ The objective is to analyze food categories, subcategories, and individual foods
 ![Nutrition facts table](https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/documents/nutrition_facts_table.jpeg)
 
 ### Analysis
-https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis
+https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysisPerServing/AData-DrivenNutrientAnalysis
 
 ### References
