@@ -55,7 +55,7 @@ if "chatbot_answer" not in st.session_state:
 # Chatbot question input
 question = st.text_area(
     "Enter your question:",
-    "Which food categories provide the highest nutrient density per calorie, and how do they compare in terms of protein, fat, and non-sugar carbohydrates?",
+    "Which food categories have the highest nutrient density per calorie, particularly for protein, fat, and non-sugar carbohydrates?",
 )
 
 if st.button("Get Answer"):
