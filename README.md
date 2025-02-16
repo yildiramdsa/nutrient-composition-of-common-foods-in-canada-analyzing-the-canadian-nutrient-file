@@ -11,6 +11,9 @@ The objective is to analyze food categories, subcategories, and individual foods
 ![Nutrition facts table](https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/documents/nutrition_facts_table.jpeg)
 
 ### Analysis
+
+This project analyzes the nutritional composition of Canadian foods using The Canadian Nutrient File dataset. Through data preprocessing, k-means clustering, and regression analysis, it standardizes nutrient values, classifies food subcategories by protein-to-fat ratios, and evaluates nutrient density per calorie. Insights are presented via interactive Tableau dashboards, while a LangChain-powered AI chatbot enables structured data queries, providing actionable insights for informed dietary choices.
+
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysisPerServing/AData-DrivenNutrientAnalysis
 
