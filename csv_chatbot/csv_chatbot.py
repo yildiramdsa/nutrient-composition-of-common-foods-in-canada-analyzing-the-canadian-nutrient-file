@@ -139,6 +139,14 @@ if st.button("Generate Scatter Plot"):
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
 
+# Streamlit UI
+st.title("Nutritional Data Explorer and Chatbot")
+
+# Check if nutrient_columns is not empty
+if not nutrient_columns:
+    st.error("No nutrient data found. Please check the dataset.")
+    st.stop()
+
 # Nutrient selection
 st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
