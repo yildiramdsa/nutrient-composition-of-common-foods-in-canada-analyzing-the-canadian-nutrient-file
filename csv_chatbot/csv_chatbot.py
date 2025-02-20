@@ -155,6 +155,13 @@ if selected_nutrient != "Select":
         orientation='h'
     )
     st.plotly_chart(fig)
+    
+    fig_cal = px.scatter(
+        df, x="Calories", y=selected_nutrient, color="Food Category",
+        hover_data=["Food Name"],
+        title=f"Calories vs {selected_nutrient} per Food Category",
+    )
+    st.plotly_chart(fig_cal)
 
     food_categories = df["Food Category"].dropna().unique().tolist()
     selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories), key="category_select")
@@ -171,6 +178,13 @@ if selected_nutrient != "Select":
         )
         st.plotly_chart(fig)
         
+        fig_cal = px.scatter(
+            filtered_df, x="Calories", y=selected_nutrient, color="Food Subcategory",
+            hover_data=["Food Name"],
+            title=f"Calories vs {selected_nutrient} per Food Subcategory",
+        )
+        st.plotly_chart(fig_cal)
+        
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
         selected_subcategory = st.selectbox("Select Food Subcategory", ["All"] + sorted(food_subcategories), key="subcategory_select")
         
@@ -179,3 +193,10 @@ if selected_nutrient != "Select":
             final_df = final_df[["Food Name", selected_nutrient]].sort_values(by=selected_nutrient, ascending=False)
             st.write("Filtered Data Table:")
             st.write(final_df)
+            
+            fig_cal = px.scatter(
+                final_df, x="Calories", y=selected_nutrient, color="Food Name",
+                hover_data=["Food Name"],
+                title=f"Calories vs {selected_nutrient} per Food Item",
+            )
+            st.plotly_chart(fig_cal)
