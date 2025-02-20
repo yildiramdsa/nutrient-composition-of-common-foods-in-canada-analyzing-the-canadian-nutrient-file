@@ -139,46 +139,6 @@ if st.button("Generate Scatter Plot"):
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
 
-from langchain.schema import HumanMessage, SystemMessage
-import os
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-import pandas as pd
-import streamlit as st
-import plotly.express as px
-import statsmodels.api as sm
-from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
-import warnings
-warnings.filterwarnings("ignore", message="is_sparse is deprecated")
-
-# Load API key
-load_dotenv()
-openai_key = st.secrets["OPENAI_API_KEY"]
-if not openai_key:
-    raise ValueError("OpenAI API key is missing. Set 'OPENAI_API_KEY' in your .env file.")
-
-# Initialize LLM model
-llm_name = "gpt-4-turbo"
-model = ChatOpenAI(api_key=openai_key, model=llm_name)
-
-# Load dataset
-data_path = "csv_chatbot/nutrition_facts.csv"
-try:
-    df = pd.read_csv(data_path).fillna(0)
-except FileNotFoundError:
-    raise FileNotFoundError(f"Dataset not found at {data_path}. Check the file path.")
-
-# Ensure nutrient columns are defined before use
-nutrient_columns = df.columns[3:].tolist() if not df.empty else []
-
-# Streamlit UI
-st.title("Nutritional Data Explorer and Chatbot")
-
-# Check if nutrient_columns is not empty
-if not nutrient_columns:
-    st.error("No nutrient data found. Please check the dataset.")
-    st.stop()
-
 # Nutrient selection
 st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
@@ -197,7 +157,7 @@ if selected_nutrient != "Select":
     st.plotly_chart(fig)
     
     fig_cal = px.scatter(
-        df, x="Calories", y=selected_nutrient, color="Food Category",
+        df, x="Calories per 100g", y=selected_nutrient, color="Food Category",
         hover_data=["Food Name"],
         title=f"Calories vs {selected_nutrient} per Food Category",
     )
