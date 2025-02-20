@@ -138,3 +138,62 @@ if st.button("Generate Scatter Plot"):
 
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
+
+# Nutrient selection
+st.subheader("Nutrient Analysis")
+nutrient_columns = df.columns[3:].tolist()
+selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns))
+
+filtered_df = df.copy()
+
+if selected_nutrient != "Select":
+    fig = px.bar(
+        df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
+        x="Food Category", 
+        y=selected_nutrient,
+        title=f"Average {selected_nutrient} per Food Category",
+        labels={selected_nutrient: f"{selected_nutrient} content"},
+    )
+    st.plotly_chart(fig)
+
+    food_categories = df["Food Category"].dropna().unique().tolist()
+    selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories))
+    
+    if selected_category != "All":
+        filtered_df = df[df["Food Category"] == selected_category]
+        fig = px.bar(
+            filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
+            x="Food Subcategory", 
+            y=selected_nutrient,
+            title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
+            labels={selected_nutrient: f"{selected_nutrient} content"},
+        )
+        st.plotly_chart(fig)
+        
+        food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
+        selected_subcategory = st.selectbox("Select Food Subcategory", ["All"] + sorted(food_subcategories))
+        
+        if selected_subcategory != "All":
+            final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
+            final_df = final_df[["Food Name", selected_nutrient]].sort_values(by=selected_nutrient, ascending=False)
+            st.write("Filtered Data Table:")
+            st.write(final_df)
+
+# Scatter Plot Calories vs Protein with Filters
+st.subheader("Calories vs Protein Scatter Plot")
+if selected_nutrient != "Select":
+    scatter_df = df.copy()
+    if selected_category != "All":
+        scatter_df = scatter_df[scatter_df["Food Category"] == selected_category]
+    if selected_subcategory != "All":
+        scatter_df = scatter_df[scatter_df["Food Subcategory"] == selected_subcategory]
+    
+    if "Calories" in df.columns and "Protein" in df.columns:
+        fig = px.scatter(
+            scatter_df, x="Calories", y="Protein", color=selected_nutrient,
+            hover_data=["Food Name"],
+            title="Calories vs Protein Scatter Plot",
+        )
+        st.plotly_chart(fig)
+    else:
+        st.warning("Dataset must contain 'Calories' and 'Protein' columns for scatter plot.")
