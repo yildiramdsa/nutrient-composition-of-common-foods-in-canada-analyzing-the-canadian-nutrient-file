@@ -139,8 +139,17 @@ if st.button("Generate Scatter Plot"):
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
 
+# Ensure nutrient columns are defined before use
+nutrient_columns = df.columns[3:].tolist()
+
+# Streamlit UI
+st.title("Nutritional Data Explorer and Chatbot")
+
 # Nutrient selection
+st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
+
+filtered_df = df.copy()
 
 if selected_nutrient != "Select":
     fig = px.bar(
@@ -174,3 +183,22 @@ if selected_nutrient != "Select":
             final_df = final_df[["Food Name", selected_nutrient]].sort_values(by=selected_nutrient, ascending=False)
             st.write("Filtered Data Table:")
             st.write(final_df)
+
+# Scatter Plot Calories vs Protein with Filters
+st.subheader("Calories vs Protein Scatter Plot")
+if selected_nutrient != "Select":
+    scatter_df = df.copy()
+    if selected_category != "All":
+        scatter_df = scatter_df[scatter_df["Food Category"] == selected_category]
+    if selected_subcategory != "All":
+        scatter_df = scatter_df[scatter_df["Food Subcategory"] == selected_subcategory]
+    
+    if "Calories" in df.columns and "Protein" in df.columns:
+        fig = px.scatter(
+            scatter_df, x="Calories", y="Protein", color=selected_nutrient,
+            hover_data=["Food Name"],
+            title="Calories vs Protein Scatter Plot",
+        )
+        st.plotly_chart(fig)
+    else:
+        st.warning("Dataset must contain 'Calories' and 'Protein' columns for scatter plot.")
