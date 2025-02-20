@@ -145,6 +145,9 @@ if not df.empty:
 else:
     nutrient_columns = []
 
+# Streamlit UI
+st.title("Nutritional Data Explorer and Chatbot")
+
 # Check if nutrient_columns is not empty
 if not nutrient_columns:
     st.error("No nutrient data found. Please check the dataset.")
