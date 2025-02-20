@@ -148,10 +148,11 @@ filtered_df = df.copy()
 if selected_nutrient != "Select":
     fig = px.bar(
         df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
-        x="Food Category", 
-        y=selected_nutrient,
+        y="Food Category", 
+        x=selected_nutrient,
         title=f"Average {selected_nutrient} per Food Category",
         labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
+        orientation='h'
     )
     st.plotly_chart(fig)
 
@@ -162,10 +163,11 @@ if selected_nutrient != "Select":
         filtered_df = df[df["Food Category"] == selected_category]
         fig = px.bar(
             filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
-            x="Food Subcategory", 
-            y=selected_nutrient,
+            y="Food Subcategory", 
+            x=selected_nutrient,
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
             labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
+            orientation='h'
         )
         st.plotly_chart(fig)
         
