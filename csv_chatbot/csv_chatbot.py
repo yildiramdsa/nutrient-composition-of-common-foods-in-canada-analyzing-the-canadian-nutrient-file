@@ -179,7 +179,7 @@ if selected_nutrient != "Select":
         st.plotly_chart(fig)
         
         fig_cal = px.scatter(
-            filtered_df, x="Calories", y=selected_nutrient, color="Food Subcategory",
+            filtered_df, x="Calories per 100g", y=selected_nutrient, color="Food Subcategory",
             hover_data=["Food Name"],
             title=f"Calories vs {selected_nutrient} per Food Subcategory",
         )
@@ -195,7 +195,7 @@ if selected_nutrient != "Select":
             st.write(final_df)
             
             fig_cal = px.scatter(
-                final_df, x="Calories", y=selected_nutrient, color="Food Name",
+                final_df, x="Calories per 100g", y=selected_nutrient, color="Food Name",
                 hover_data=["Food Name"],
                 title=f"Calories vs {selected_nutrient} per Food Item",
             )
