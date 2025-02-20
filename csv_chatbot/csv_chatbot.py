@@ -139,9 +139,6 @@ if st.button("Generate Scatter Plot"):
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
 
-# Ensure nutrient columns are defined before use
-nutrient_columns = df.columns[3:].tolist()
-
 # Nutrient selection
 st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
@@ -154,7 +151,7 @@ if selected_nutrient != "Select":
         x="Food Category", 
         y=selected_nutrient,
         title=f"Average {selected_nutrient} per Food Category",
-        labels={selected_nutrient: f"{selected_nutrient} content"},
+        labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
     )
     st.plotly_chart(fig)
 
@@ -168,7 +165,7 @@ if selected_nutrient != "Select":
             x="Food Subcategory", 
             y=selected_nutrient,
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
-            labels={selected_nutrient: f"{selected_nutrient} content"},
+            labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
         )
         st.plotly_chart(fig)
         
