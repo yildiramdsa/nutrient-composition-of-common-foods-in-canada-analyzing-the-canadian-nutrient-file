@@ -139,6 +139,12 @@ if st.button("Generate Scatter Plot"):
 # cd csv_chatbot
 # streamlit run csv_chatbot.py
 
+# Ensure nutrient columns are defined before use
+if not df.empty:
+    nutrient_columns = [col for col in df.columns if col not in ['Food Name', 'Food Subcategory', 'Food Category']]
+else:
+    nutrient_columns = []
+
 # Streamlit UI
 st.title("Nutritional Data Explorer and Chatbot")
 
