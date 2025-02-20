@@ -171,7 +171,7 @@ if selected_nutrient != "Select":
     st.plotly_chart(fig)
     
     fig_cal = px.scatter(
-        df.groupby("Food Category", as_index=False).agg({"Calories per 100g": "mean", selected_nutrient: "mean"}),
+        df.groupby("Food Category", as_index=False).agg({"Calories per 100g": "mean", selected_nutrient: "mean"}).dropna(),
         x="Calories per 100g", y=selected_nutrient, color="Food Category",
         hover_data=["Food Name"],
         title=f"Calories vs {selected_nutrient} per Food Category",
@@ -215,3 +215,22 @@ if selected_nutrient != "Select":
                 title=f"Calories vs {selected_nutrient} per Food Item",
             )
             st.plotly_chart(fig_cal)
+
+# Scatter Plot Calories vs Protein with Filters
+st.subheader("Calories vs Protein Scatter Plot")
+if selected_nutrient != "Select":
+    scatter_df = df.copy()
+    if selected_category != "All":
+        scatter_df = scatter_df[scatter_df["Food Category"] == selected_category]
+    if selected_subcategory != "All":
+        scatter_df = scatter_df[scatter_df["Food Subcategory"] == selected_subcategory]
+    
+    if "Calories per 100g" in df.columns and "Protein (g) per 100g" in df.columns:
+        fig = px.scatter(
+            scatter_df, x="Protein (g) per 100g", y=selected_nutrient, color="Calories per 100g",
+            hover_data=["Food Name"],
+            title=f"{selected_nutrient} vs Protein Scatter Plot",
+        )
+        st.plotly_chart(fig)
+    else:
+        st.warning("Dataset must contain 'Calories per 100g' and 'Protein (g) per 100g' columns for scatter plot.")
