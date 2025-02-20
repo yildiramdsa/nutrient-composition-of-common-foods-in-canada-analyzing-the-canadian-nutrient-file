@@ -145,9 +145,6 @@ if not df.empty:
 else:
     nutrient_columns = []
 
-# Streamlit UI
-st.title("Nutritional Data Explorer and Chatbot")
-
 # Check if nutrient_columns is not empty
 if not nutrient_columns:
     st.error("No nutrient data found. Please check the dataset.")
@@ -171,7 +168,8 @@ if selected_nutrient != "Select":
     st.plotly_chart(fig)
     
     fig_cal = px.scatter(
-        df, x="Calories per 100g", y=selected_nutrient, color="Food Category",
+        df.groupby("Food Category", as_index=False)[["Calories per 100g", selected_nutrient]].mean(),
+        x="Calories per 100g", y=selected_nutrient, color="Food Category",
         hover_data=["Food Name"],
         title=f"Calories vs {selected_nutrient} per Food Category",
     )
