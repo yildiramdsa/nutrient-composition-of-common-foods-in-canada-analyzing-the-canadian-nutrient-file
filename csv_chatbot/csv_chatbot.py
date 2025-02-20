@@ -171,7 +171,7 @@ if selected_nutrient != "Select":
     st.plotly_chart(fig)
     
     fig_cal = px.scatter(
-        df.groupby("Food Category", as_index=False)[["Calories per 100g", selected_nutrient]].mean(),
+        df.groupby("Food Category", as_index=False).agg({"Calories per 100g": "mean", selected_nutrient: "mean"}),
         x="Calories per 100g", y=selected_nutrient, color="Food Category",
         hover_data=["Food Name"],
         title=f"Calories vs {selected_nutrient} per Food Category",
