@@ -103,20 +103,22 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # Scatter Plot: Nutrient vs Calories by Food Category
-    # Hover labels: Food Category, then selected nutrient, then Calories
+    # Scatter Plot: Nutrient vs Calories by Food Category with K-Means Clustering
     grouped_df = df.groupby("Food Category", as_index=False)\
                    .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
                    .dropna()
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    grouped_df["cluster"] = kmeans.fit_predict(grouped_df[[selected_nutrient, "Calories per 100g"]])
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
         y="Calories per 100g",
-        title=f"{selected_nutrient} vs Calories by Food Category",
-        color_discrete_sequence=["#f6a600"],
-        hover_data=["Food Category", selected_nutrient, "Calories per 100g"]
+        title=f"{selected_nutrient} vs Calories by Food Category (Clusters)",
+        color="cluster",
+        hover_data=["Food Category", selected_nutrient, "Calories per 100g"],
+        color_discrete_sequence=px.colors.qualitative.Dark24
     )
-    fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
+    fig_cal.update_traces(marker=dict(size=12))
     fig_cal.update_layout(showlegend=False)
     st.plotly_chart(fig_cal)
 
@@ -139,21 +141,23 @@ if selected_nutrient != "None Selected":
         fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
         st.plotly_chart(fig)
         
-        # Scatter Plot: Nutrient vs Calories by Food Subcategory
-        # Hover labels: Food Subcategory, then selected nutrient, then Calories
+        # Scatter Plot: Nutrient vs Calories by Food Subcategory with K-Means Clustering
         grouped_subcat_scatter = filtered_df.groupby("Food Subcategory", as_index=False).agg({
             selected_nutrient: "mean", 
             "Calories per 100g": "mean"
         }).dropna()
+        kmeans = KMeans(n_clusters=3, random_state=42)
+        grouped_subcat_scatter["cluster"] = kmeans.fit_predict(grouped_subcat_scatter[[selected_nutrient, "Calories per 100g"]])
         fig_cal = px.scatter(
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
-            title=f"{selected_nutrient} vs Calories by Food Subcategory",
-            color_discrete_sequence=["#f6a600"],
-            hover_data=["Food Subcategory", selected_nutrient, "Calories per 100g"]
+            title=f"{selected_nutrient} vs Calories by Food Subcategory (Clusters)",
+            color="cluster",
+            hover_data=["Food Subcategory", selected_nutrient, "Calories per 100g"],
+            color_discrete_sequence=px.colors.qualitative.Dark24
         )
-        fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
+        fig_cal.update_traces(marker=dict(size=12))
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
@@ -166,19 +170,18 @@ if selected_nutrient != "None Selected":
             st.write("Filtered Data Table:")
             st.write(final_df[["Food Name", selected_nutrient]])
             
-            # K-Means Clustering Scatter Plot: Nutrient vs Calories by Food Item
-            # Perform k-means clustering on the selected nutrient and Calories per 100g
+            # Scatter Plot: Nutrient vs Calories by Food Item with K-Means Clustering
             kmeans = KMeans(n_clusters=3, random_state=42)
             final_df["cluster"] = kmeans.fit_predict(final_df[[selected_nutrient, "Calories per 100g"]])
-            
-            # Hover labels: Food Name, then selected nutrient, then Calories per 100g
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
-                title=f"{selected_nutrient} vs Calories by Food Item (K-Means Clustering)",
+                title=f"{selected_nutrient} vs Calories by Food Item (Clusters)",
                 color="cluster",
-                hover_data=["Food Name", selected_nutrient, "Calories per 100g"]
+                hover_data=["Food Name", selected_nutrient, "Calories per 100g"],
+                color_discrete_sequence=px.colors.qualitative.Dark24
             )
             fig_cal.update_traces(marker=dict(size=12))
+            fig_cal.update_layout(showlegend=False)
             st.plotly_chart(fig_cal)
