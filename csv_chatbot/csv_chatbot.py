@@ -9,6 +9,7 @@ import statsmodels.api as sm
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 from sklearn.cluster import KMeans
 import warnings
+
 warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
 # Helper function to assign clusters with custom ordering based on average calories
@@ -50,19 +51,25 @@ try:
 except FileNotFoundError:
     raise FileNotFoundError(f"Dataset not found at {data_path}. Check the file path.")
 
-# Create chatbot agent
+# Create chatbot agent (removed unsupported argument)
 chatbot = create_pandas_dataframe_agent(
     llm=llm_model,
     df=df,
     verbose=True,
-    handle_parsing_errors=True,
-    allow_dangerous_code=True,
+    allow_dangerous_code=True
 )
 
-if not os.path.exists("header.png"):
-    st.error("Error: header.png not found. Please check the file path.")
-else:
+# Check if header.png exists, otherwise provide upload option
+if os.path.exists("header.png"):
     st.image("header.png", use_container_width=True)
+else:
+    uploaded_file = st.file_uploader("Upload header.png", type=["png"])
+    if uploaded_file:
+        with open("header.png", "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.image("header.png", use_container_width=True)
+    else:
+        st.error("Error: header.png not found. Please upload the file.")
 
 # Streamlit UI
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
