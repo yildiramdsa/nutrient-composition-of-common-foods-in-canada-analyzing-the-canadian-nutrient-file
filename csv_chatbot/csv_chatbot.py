@@ -12,27 +12,20 @@ import warnings
 
 warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
-# Helper function to assign clusters with custom ordering based on average calories
-def assign_clusters(df, feature, calories_col, n_clusters=3):
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    clusters = kmeans.fit_predict(df[[feature, calories_col]])
-    df["cluster"] = clusters
-    # Compute mean calories per cluster and sort descending
-    cluster_means = df.groupby("cluster")[calories_col].mean().sort_values(ascending=False)
-    mapping = {}
-    for new_label, old_label in enumerate(cluster_means.index):
-        mapping[old_label] = new_label
-    df["cluster"] = df["cluster"].map(mapping)
-    # Convert to string so Plotly applies discrete colors
-    df["cluster"] = df["cluster"].astype(str)
-    return df
+# Function to display images (header/footer) with a local fallback
+def display_image(local_path, fallback_url):
+    if os.path.exists(local_path):
+        st.image(local_path, use_container_width=True)
+    else:
+        st.image(fallback_url, use_container_width=True)
 
-# Helper function to make column labels more professional
-def professional_label(col_name: str) -> str:
-    """Remove 'per 100g' from nutrient names and rename 'Calories per 100g' to 'Calories'."""
-    if col_name == "Calories per 100g":
-        return "Calories"
-    return col_name.replace(" per 100g", "")
+# Header Image
+header_path = "header.png"
+header_fallback_url = "https://raw.githubusercontent.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/main/csv_chatbot/header.png"
+display_image(header_path, header_fallback_url)
+
+# Streamlit UI
+st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
 # Load API key
 load_dotenv()
@@ -58,17 +51,6 @@ chatbot = create_pandas_dataframe_agent(
     verbose=True,
     allow_dangerous_code=True
 )
-
-header_path = "header.png"
-
-if not os.path.exists(header_path):
-    fallback_url = "https://raw.githubusercontent.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/main/csv_chatbot/header.png"
-    st.image(fallback_url, use_container_width=True)
-else:
-    st.image(header_path, use_container_width=True)
-
-# Streamlit UI
-st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
 # Nutrient Analysis & Visualization Section
 st.subheader("Discover Your Food’s Nutrient Profile")
@@ -297,3 +279,7 @@ if st.button("Get Answer"):
 if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
+
+footer_path = "footer.png"
+footer_fallback_url = "https://raw.githubusercontent.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/main/csv_chatbot/footer.png"
+display_image(footer_path, footer_fallback_url)
