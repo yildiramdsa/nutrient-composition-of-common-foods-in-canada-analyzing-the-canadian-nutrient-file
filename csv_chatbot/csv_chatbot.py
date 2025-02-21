@@ -60,7 +60,7 @@ chatbot = create_pandas_dataframe_agent(
 )
 
 # Streamlit UI
-st.title("Nutrition Insights & Chatbot")
+st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
 # Nutrient Analysis & Visualization Section
 st.subheader("Nutrient Analysis & Visualization")
