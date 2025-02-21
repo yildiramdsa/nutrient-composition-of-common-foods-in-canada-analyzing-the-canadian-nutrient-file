@@ -272,6 +272,7 @@ if selected_nutrient != "None Selected":
             st.markdown(f"**{title_nutrient} by Food Name in {selected_subcategory}**")
             final_df_display = final_df[["Food Name", selected_nutrient]].rename(columns={selected_nutrient: title_nutrient})
             html_table = final_df_display.to_html(index=False)
+            html_table = f"<style>th {{ text-align: left !important; }}</style>" + html_table
             st.markdown(html_table, unsafe_allow_html=True)
  
             # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
