@@ -11,6 +11,19 @@ from sklearn.cluster import KMeans
 import warnings
 warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
+# Helper function to assign clusters with custom ordering based on average calories
+def assign_clusters(df, feature, calories_col, n_clusters=3):
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clusters = kmeans.fit_predict(df[[feature, calories_col]])
+    df["cluster"] = clusters
+    # Compute mean calories per cluster and sort descending
+    cluster_means = df.groupby("cluster")[calories_col].mean().sort_values(ascending=False)
+    mapping = {}
+    for new_label, old_label in enumerate(cluster_means.index):
+        mapping[old_label] = new_label
+    df["cluster"] = df["cluster"].map(mapping)
+    return df
+
 # Load API key
 load_dotenv()
 openai_key = st.secrets["OPENAI_API_KEY"]
@@ -104,19 +117,24 @@ if selected_nutrient != "None Selected":
     st.plotly_chart(fig)
     
     # Scatter Plot: Nutrient vs Calories by Food Category with K-Means Clustering
-    grouped_df = df.groupby("Food Category", as_index=False)\
-                   .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
-                   .dropna()
-    kmeans = KMeans(n_clusters=3, random_state=42)
-    grouped_df["cluster"] = kmeans.fit_predict(grouped_df[[selected_nutrient, "Calories per 100g"]])
+    grouped_df = df.groupby("Food Category", as_index=False).agg({
+        "Calories per 100g": "mean", 
+        selected_nutrient: "mean"
+    }).dropna()
+    grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
         y="Calories per 100g",
         title=f"{selected_nutrient} vs Calories by Food Category (Clusters)",
         color="cluster",
-        hover_data=["Food Category", selected_nutrient, "Calories per 100g"],
-        color_discrete_sequence=px.colors.qualitative.Dark24
+        hover_data={
+            "Food Category": True,
+            selected_nutrient: True,
+            "Calories per 100g": True,
+            "cluster": False  # do not show cluster info in hover
+        },
+        color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
     )
     fig_cal.update_traces(marker=dict(size=12))
     fig_cal.update_layout(showlegend=False)
@@ -146,16 +164,20 @@ if selected_nutrient != "None Selected":
             selected_nutrient: "mean", 
             "Calories per 100g": "mean"
         }).dropna()
-        kmeans = KMeans(n_clusters=3, random_state=42)
-        grouped_subcat_scatter["cluster"] = kmeans.fit_predict(grouped_subcat_scatter[[selected_nutrient, "Calories per 100g"]])
+        grouped_subcat_scatter = assign_clusters(grouped_subcat_scatter, selected_nutrient, "Calories per 100g", 3)
         fig_cal = px.scatter(
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
             title=f"{selected_nutrient} vs Calories by Food Subcategory (Clusters)",
             color="cluster",
-            hover_data=["Food Subcategory", selected_nutrient, "Calories per 100g"],
-            color_discrete_sequence=px.colors.qualitative.Dark24
+            hover_data={
+                "Food Subcategory": True,
+                selected_nutrient: True,
+                "Calories per 100g": True,
+                "cluster": False
+            },
+            color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
         )
         fig_cal.update_traces(marker=dict(size=12))
         fig_cal.update_layout(showlegend=False)
@@ -171,16 +193,20 @@ if selected_nutrient != "None Selected":
             st.write(final_df[["Food Name", selected_nutrient]])
             
             # Scatter Plot: Nutrient vs Calories by Food Item with K-Means Clustering
-            kmeans = KMeans(n_clusters=3, random_state=42)
-            final_df["cluster"] = kmeans.fit_predict(final_df[[selected_nutrient, "Calories per 100g"]])
+            final_df = assign_clusters(final_df.copy(), selected_nutrient, "Calories per 100g", 3)
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
                 title=f"{selected_nutrient} vs Calories by Food Item (Clusters)",
                 color="cluster",
-                hover_data=["Food Name", selected_nutrient, "Calories per 100g"],
-                color_discrete_sequence=px.colors.qualitative.Dark24
+                hover_data={
+                    "Food Name": True,
+                    selected_nutrient: True,
+                    "Calories per 100g": True,
+                    "cluster": False
+                },
+                color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
             )
             fig_cal.update_traces(marker=dict(size=12))
             fig_cal.update_layout(showlegend=False)
