@@ -59,17 +59,7 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True
 )
 
-# Check if header.png exists, otherwise provide upload option
-if os.path.exists("header.png"):
-    st.image("header.png", use_container_width=True)
-else:
-    uploaded_file = st.file_uploader("Upload header.png", type=["png"])
-    if uploaded_file:
-        with open("header.png", "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.image("header.png", use_container_width=True)
-    else:
-        st.error("Error: header.png not found. Please upload the file.")
+st.image("header.png", use_container_width=True)
 
 # Streamlit UI
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
@@ -301,3 +291,15 @@ if st.button("Get Answer"):
 if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
+
+# Check if header.png exists, otherwise provide upload option
+if os.path.exists("footer.png"):
+    st.image("footer.png", use_container_width=True)
+else:
+    uploaded_file = st.file_uploader("Upload header.png", type=["png"])
+    if uploaded_file:
+        with open("footer.png", "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.image("footer.png", use_container_width=True)
+    else:
+        st.error("Error: header.png not found. Please upload the file.")
