@@ -59,6 +59,11 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True,
 )
 
+if not os.path.exists("header.png"):
+    st.error("Error: header.png not found. Please check the file path.")
+else:
+    st.image("header.png", use_container_width=True)
+
 # Streamlit UI
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
