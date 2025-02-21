@@ -88,13 +88,13 @@ selected_nutrient = st.selectbox("Select Nutrient", ["None Selected"] + sorted(n
 filtered_df = df.copy()
 
 if selected_nutrient != "None Selected":
-    # Bar Chart: Average nutrient per Food Category with labels rounded to 2 decimals and outside the bar
+    # Bar Chart: Average nutrient by Food Category with labels rounded to 2 decimals and outside the bar
     grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
     fig = px.bar(
         grouped_category,
         y="Food Category", 
         x=selected_nutrient,
-        title=f"Average {selected_nutrient} per Food Category",
+        title=f"Average {selected_nutrient} by Food Category",
         labels={"Food Category": "Food Category", selected_nutrient: f"{selected_nutrient}"},
         orientation='h',
         color_discrete_sequence=["#f6a600"]
@@ -102,7 +102,7 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # Scatter Plot: Nutrient vs Calories per Food Category (Calories on y-axis)
+    # Scatter Plot: Nutrient vs Calories by Food Category (Calories on y-axis)
     grouped_df = df.groupby("Food Category", as_index=False)\
                    .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
                    .dropna()
@@ -111,7 +111,7 @@ if selected_nutrient != "None Selected":
         x=selected_nutrient,
         y="Calories per 100g",
         color="Food Category",
-        title=f"{selected_nutrient} vs Calories per Food Category",
+        title=f"{selected_nutrient} vs Calories by Food Category",
     )
     st.plotly_chart(fig_cal)
 
@@ -120,13 +120,13 @@ if selected_nutrient != "None Selected":
     
     if selected_category != "None Selected":
         filtered_df = df[df["Food Category"] == selected_category]
-        # Bar Chart: Average nutrient per Food Subcategory with labels rounded to 2 decimals and outside the bar
+        # Bar Chart: Average nutrient by Food Subcategory with labels rounded to 2 decimals and outside the bar
         grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
         fig = px.bar(
             grouped_subcat,
             y="Food Subcategory", 
             x=selected_nutrient,
-            title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
+            title=f"Average {selected_nutrient} by Food Subcategory in {selected_category}",
             labels={"Food Subcategory": "Food Subcategory", selected_nutrient: f"{selected_nutrient}"},
             orientation='h',
             color_discrete_sequence=["#f6a600"]
@@ -140,7 +140,7 @@ if selected_nutrient != "None Selected":
             y="Calories per 100g",
             color="Food Subcategory",
             hover_data=["Food Name"],
-            title=f"{selected_nutrient} vs Calories per Food Subcategory",
+            title=f"{selected_nutrient} vs Calories by Food Subcategory",
         )
         st.plotly_chart(fig_cal)
         
@@ -159,6 +159,6 @@ if selected_nutrient != "None Selected":
                 y="Calories per 100g",
                 color="Food Name",
                 hover_data=["Food Name"],
-                title=f"{selected_nutrient} vs Calories per Food Item",
+                title=f"{selected_nutrient} vs Calories by Food Item",
             )
             st.plotly_chart(fig_cal)
