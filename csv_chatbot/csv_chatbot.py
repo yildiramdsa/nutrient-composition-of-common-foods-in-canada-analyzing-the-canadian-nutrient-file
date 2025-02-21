@@ -138,7 +138,7 @@ if selected_nutrient != "None Selected":
         title=f"Average {title_nutrient} by Food Category",
         labels={
             "Food Category": "Food Category",
-            selected_nutrient: title_nutrient
+            selected_nutrient: f"Avg. {title_nutrient}"
         },
         orientation='h',
         color_discrete_sequence=["#f6a600"]
@@ -208,7 +208,7 @@ if selected_nutrient != "None Selected":
             title=f"Average {title_nutrient} by Food Subcategory in {selected_category}",
             labels={
                 "Food Subcategory": "Food Subcategory",
-                selected_nutrient: title_nutrient
+                selected_nutrient: f"Avg. {title_nutrient}"
             },
             orientation='h',
             color_discrete_sequence=["#f6a600"]
