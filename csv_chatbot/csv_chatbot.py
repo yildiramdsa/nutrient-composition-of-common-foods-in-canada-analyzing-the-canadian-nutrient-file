@@ -88,7 +88,7 @@ selected_nutrient = st.selectbox("Select Nutrient", ["None Selected"] + sorted(n
 filtered_df = df.copy()
 
 if selected_nutrient != "None Selected":
-    # Bar Chart: Average nutrient by Food Category with labels rounded to 2 decimals and outside the bar
+    # Bar Chart: Average nutrient by Food Category
     grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
     fig = px.bar(
         grouped_category,
@@ -102,7 +102,8 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # Scatter Plot: Nutrient vs Calories by Food Category (calories on y-axis)
+    # Scatter Plot: Nutrient vs Calories by Food Category
+    # Hover labels: Food Category, then selected nutrient, then Calories
     grouped_df = df.groupby("Food Category", as_index=False)\
                    .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
                    .dropna()
@@ -111,7 +112,8 @@ if selected_nutrient != "None Selected":
         x=selected_nutrient,
         y="Calories per 100g",
         title=f"{selected_nutrient} vs Calories by Food Category",
-        color_discrete_sequence=["#f6a600"]
+        color_discrete_sequence=["#f6a600"],
+        hover_data=["Food Category", selected_nutrient, "Calories per 100g"]
     )
     fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
     fig_cal.update_layout(showlegend=False)
@@ -122,7 +124,7 @@ if selected_nutrient != "None Selected":
     
     if selected_category != "None Selected":
         filtered_df = df[df["Food Category"] == selected_category]
-        # Bar Chart: Average nutrient by Food Subcategory with labels rounded to 2 decimals and outside the bar
+        # Bar Chart: Average nutrient by Food Subcategory
         grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
         fig = px.bar(
             grouped_subcat,
@@ -136,8 +138,8 @@ if selected_nutrient != "None Selected":
         fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
         st.plotly_chart(fig)
         
-        # Scatter Plot: Nutrient vs Calories by Food Subcategory 
-        # Aggregated by Food Subcategory so that points represent subcategories
+        # Scatter Plot: Nutrient vs Calories by Food Subcategory
+        # Hover labels: Food Subcategory, then selected nutrient, then Calories
         grouped_subcat_scatter = filtered_df.groupby("Food Subcategory", as_index=False).agg({
             selected_nutrient: "mean", 
             "Calories per 100g": "mean"
@@ -146,9 +148,9 @@ if selected_nutrient != "None Selected":
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
-            hover_data=["Food Subcategory"],
             title=f"{selected_nutrient} vs Calories by Food Subcategory",
-            color_discrete_sequence=["#f6a600"]
+            color_discrete_sequence=["#f6a600"],
+            hover_data=["Food Subcategory", selected_nutrient, "Calories per 100g"]
         )
         fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
         fig_cal.update_layout(showlegend=False)
@@ -164,7 +166,7 @@ if selected_nutrient != "None Selected":
             st.write(final_df[["Food Name", selected_nutrient]])
             
             # Scatter Plot: Nutrient vs Calories by Food Item
-            # Add regression line and improve hover labels (Food Name, Food Category, Food Subcategory)
+            # Hover labels: Food Name, then selected nutrient, then Calories; regression line added for trend
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
@@ -172,7 +174,7 @@ if selected_nutrient != "None Selected":
                 title=f"{selected_nutrient} vs Calories by Food Item",
                 color_discrete_sequence=["#f6a600"],
                 trendline="ols",
-                hover_data=["Food Name", "Food Category", "Food Subcategory"]
+                hover_data=["Food Name", selected_nutrient, "Calories per 100g"]
             )
             fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
             fig_cal.update_layout(showlegend=False)
