@@ -62,7 +62,7 @@ chatbot = create_pandas_dataframe_agent(
 header_path = "header.png"
 
 if not os.path.exists(header_path):
-    fallback_url = "https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/csv_chatbot/header.png"
+    fallback_url = "https://raw.githubusercontent.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/main/csv_chatbot/header.png"
     st.image(fallback_url, use_container_width=True)
 else:
     st.image(header_path, use_container_width=True)
