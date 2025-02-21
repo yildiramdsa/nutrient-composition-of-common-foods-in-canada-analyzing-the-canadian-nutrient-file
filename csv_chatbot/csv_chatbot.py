@@ -88,7 +88,7 @@ selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient
 filtered_df = df.copy()
 
 if selected_nutrient != "Select":
-    # Bar Chart: Average nutrient per Food Category with labels and custom color
+    # Bar Chart: Average nutrient per Food Category with labels rounded to 2 decimals and outside the bar
     grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
     fig = px.bar(
         grouped_category,
@@ -97,9 +97,9 @@ if selected_nutrient != "Select":
         title=f"Average {selected_nutrient} per Food Category",
         labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
         orientation='h',
-        text_auto=True,
         color_discrete_sequence=["#2ab7ca"]
     )
+    fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
     # Scatter Plot: Calories vs Nutrient per Food Category
@@ -120,7 +120,7 @@ if selected_nutrient != "Select":
     
     if selected_category != "All":
         filtered_df = df[df["Food Category"] == selected_category]
-        # Bar Chart: Average nutrient per Food Subcategory with labels and custom color
+        # Bar Chart: Average nutrient per Food Subcategory with labels rounded to 2 decimals and outside the bar
         grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
         fig = px.bar(
             grouped_subcat,
@@ -129,9 +129,9 @@ if selected_nutrient != "Select":
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
             labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
             orientation='h',
-            text_auto=True,
             color_discrete_sequence=["#2ab7ca"]
         )
+        fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
         st.plotly_chart(fig)
         
         fig_cal = px.scatter(
