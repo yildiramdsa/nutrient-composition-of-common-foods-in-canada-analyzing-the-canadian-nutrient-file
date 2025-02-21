@@ -8,7 +8,6 @@ import plotly.express as px
 import statsmodels.api as sm
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 import warnings
-
 warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
 # Load API key
@@ -19,7 +18,7 @@ if not openai_key:
 
 # Initialize LLM model
 llm_name = "gpt-4-turbo"
-model = ChatOpenAI(api_key=openai_key, model=llm_name)
+llm_model = ChatOpenAI(api_key=openai_key, model=llm_name)
 
 # Load dataset
 data_path = "csv_chatbot/nutrition_facts.csv"
@@ -30,7 +29,7 @@ except FileNotFoundError:
 
 # Create chatbot agent
 chatbot = create_pandas_dataframe_agent(
-    llm=model,
+    llm=llm_model,
     df=df,
     verbose=True,
     handle_parsing_errors=True,
@@ -48,7 +47,6 @@ st.write(df.describe())
 
 # Chatbot Query Section with Session State
 st.subheader("Ask the Nutrition Chatbot")
-
 if "chatbot_answer" not in st.session_state:
     st.session_state["chatbot_answer"] = None
 
@@ -80,11 +78,9 @@ if st.session_state["chatbot_answer"]:
 
 # Filtering Section (Category and Subcategory)
 st.subheader("Filter Food Data by Category and Subcategory")
-
 filtered_df = df.copy()
 
 food_categories = df["Food Category"].dropna().unique().tolist()
-
 selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories))
 
 if selected_category != "All":
@@ -115,10 +111,11 @@ x_column = st.selectbox("Select X-axis (Nutrient)", columns)
 y_column = st.selectbox("Select Y-axis (Nutrient)", columns)
 
 if st.button("Generate Scatter Plot"):
-    if pd.api.types.is_numeric_dtype(df[x_column]) and pd.api.types.is_numeric_dtype(df[y_column]):
+    if pd.api.types.is_numeric_dtype(filtered_df[x_column]) and pd.api.types.is_numeric_dtype(filtered_df[y_column]):
+        # Fit a linear regression model without overwriting the LLM model
         X = sm.add_constant(filtered_df[x_column])
-        model = sm.OLS(filtered_df[y_column], X).fit()
-        filtered_df["Trend"] = model.predict(X)
+        ols_model = sm.OLS(filtered_df[y_column], X).fit()
+        filtered_df["Trend"] = ols_model.predict(X)
 
         fig = px.scatter(
             filtered_df,
@@ -132,7 +129,7 @@ if st.button("Generate Scatter Plot"):
     else:
         st.warning("Please select numeric columns for both X and Y axes.")
 
-# Ensure nutrient columns are defined before use
+# Define nutrient columns (exclude non-nutrient columns)
 if not df.empty:
     nutrient_columns = [col for col in df.columns if col not in ['Food Name', 'Food Subcategory', 'Food Category']]
 else:
@@ -140,10 +137,10 @@ else:
 
 st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
-
 filtered_df = df.copy()
 
 if selected_nutrient != "Select":
+    # Bar Chart: Average nutrient per Food Category
     fig = px.bar(
         df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
         y="Food Category", 
@@ -153,43 +150,60 @@ if selected_nutrient != "Select":
         orientation='h'
     )
     st.plotly_chart(fig)
+    
+    # Scatter Plot: Calories vs Nutrient per Food Category
+    grouped_df = df.groupby("Food Category", as_index=False)\
+                   .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
+                   .dropna()
+    fig_cal = px.scatter(
+        grouped_df,
+        x="Calories per 100g",
+        y=selected_nutrient,
+        color="Food Category",
+        title=f"Calories vs {selected_nutrient} per Food Category",
+    )
+    st.plotly_chart(fig_cal)
 
-    # Scatter plot fix with missing value handling
-    if "Calories per 100g" in df.columns and selected_nutrient in df.columns:
-        df["Calories per 100g"] = pd.to_numeric(df["Calories per 100g"], errors="coerce")
-        df[selected_nutrient] = pd.to_numeric(df[selected_nutrient], errors="coerce")
-        
-        scatter_data = df.dropna(subset=["Calories per 100g", selected_nutrient])
-        
-        if not scatter_data.empty:
-            fig_cal = px.scatter(
-                scatter_data,
-                x="Calories per 100g",
-                y=selected_nutrient,
-                color="Food Category",
-                hover_data=["Food Name"],
-                title=f"Calories vs {selected_nutrient} per Food Category",
-            )
-            st.plotly_chart(fig_cal)
-        else:
-            st.warning("No valid data available for the selected nutrient.")
-    else:
-        st.error("Required columns not found in the dataset.")
-
-st.subheader("Calories vs Protein Scatter Plot")
-if selected_nutrient != "Select":
-    scatter_df = df.copy()
+    food_categories = df["Food Category"].dropna().unique().tolist()
+    selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories), key="category_select")
+    
     if selected_category != "All":
-        scatter_df = scatter_df[scatter_df["Food Category"] == selected_category]
-    if selected_subcategory != "All":
-        scatter_df = scatter_df[scatter_df["Food Subcategory"] == selected_subcategory]
-
-    if "Calories per 100g" in df.columns and "Protein (g) per 100g" in df.columns:
-        fig = px.scatter(
-            scatter_df, x="Protein (g) per 100g", y=selected_nutrient, color="Calories per 100g",
-            hover_data=["Food Name"],
-            title=f"{selected_nutrient} vs Protein Scatter Plot",
+        filtered_df = df[df["Food Category"] == selected_category]
+        fig = px.bar(
+            filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
+            y="Food Subcategory", 
+            x=selected_nutrient,
+            title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
+            labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
+            orientation='h'
         )
         st.plotly_chart(fig)
-    else:
-        st.warning("Dataset must contain 'Calories per 100g' and 'Protein (g) per 100g' columns for scatter plot.")
+        
+        fig_cal = px.scatter(
+            filtered_df,
+            x="Calories per 100g",
+            y=selected_nutrient,
+            color="Food Subcategory",
+            hover_data=["Food Name"],
+            title=f"Calories vs {selected_nutrient} per Food Subcategory",
+        )
+        st.plotly_chart(fig_cal)
+        
+        food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
+        selected_subcategory = st.selectbox("Select Food Subcategory", ["All"] + sorted(food_subcategories), key="subcategory_select")
+        
+        if selected_subcategory != "All":
+            final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
+            final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
+            st.write("Filtered Data Table:")
+            st.write(final_df[["Food Name", selected_nutrient]])
+            
+            fig_cal = px.scatter(
+                final_df,
+                x="Calories per 100g",
+                y=selected_nutrient,
+                color="Food Name",
+                hover_data=["Food Name"],
+                title=f"Calories vs {selected_nutrient} per Food Item",
+            )
+            st.plotly_chart(fig_cal)
