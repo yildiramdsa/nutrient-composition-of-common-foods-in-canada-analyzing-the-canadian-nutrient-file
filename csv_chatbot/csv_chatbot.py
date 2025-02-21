@@ -97,7 +97,7 @@ if selected_nutrient != "Select":
         title=f"Average {selected_nutrient} per Food Category",
         labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
         orientation='h',
-        color_discrete_sequence=["#2ab7ca"]
+        color_discrete_sequence=["#f6a600"]
     )
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
@@ -129,7 +129,7 @@ if selected_nutrient != "Select":
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
             labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
             orientation='h',
-            color_discrete_sequence=["#2ab7ca"]
+            color_discrete_sequence=["#f6a600"]
         )
         fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
         st.plotly_chart(fig)
