@@ -134,7 +134,7 @@ if selected_nutrient != "None Selected":
             "Calories per 100g": True,
             "cluster": False  # do not show cluster info in hover
         },
-        color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
+        color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
     )
     fig_cal.update_traces(marker=dict(size=12))
     fig_cal.update_layout(showlegend=False)
@@ -177,7 +177,7 @@ if selected_nutrient != "None Selected":
                 "Calories per 100g": True,
                 "cluster": False
             },
-            color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
+            color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
         )
         fig_cal.update_traces(marker=dict(size=12))
         fig_cal.update_layout(showlegend=False)
@@ -206,7 +206,7 @@ if selected_nutrient != "None Selected":
                     "Calories per 100g": True,
                     "cluster": False
                 },
-                color_discrete_map={0: "d93b3b", 1: "#f6a600", 2: "a0d606"}
+                color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
             )
             fig_cal.update_traces(marker=dict(size=12))
             fig_cal.update_layout(showlegend=False)
