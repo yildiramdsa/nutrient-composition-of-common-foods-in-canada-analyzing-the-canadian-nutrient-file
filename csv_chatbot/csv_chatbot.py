@@ -60,9 +60,6 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True,
 )
 
-# -------------------------------
-# Header Image
-# -------------------------------
 st.image("header.png", use_container_width=True)
 
 # Main App Title
@@ -301,7 +298,4 @@ if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
 
-# -------------------------------
-# Footer Image
-# -------------------------------
 st.image("footer.png", use_container_width=True)
