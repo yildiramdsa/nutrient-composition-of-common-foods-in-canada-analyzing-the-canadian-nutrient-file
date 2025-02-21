@@ -65,42 +65,11 @@ chatbot = create_pandas_dataframe_agent(
 
 # Streamlit UI
 st.title("Nutritional Data Explorer and Chatbot")
-st.subheader("Explore Food Nutrient Data")
-st.write(df.head())
-st.subheader("Summary Statistics")
-st.write(df.describe())
 
-# Chatbot Query Section with Session State
-st.subheader("Ask the Nutrition Chatbot")
-if "chatbot_answer" not in st.session_state:
-    st.session_state["chatbot_answer"] = None
+# (The "Explore Food Nutrient Data" and "Summary Statistics" sections have been removed)
 
-question = st.text_area(
-    "Enter your question:",
-    "Which food categories have the highest nutrient density per calorie, particularly for protein, fat, and non-sugar carbohydrates?",
-)
-
-if st.button("Get Answer"):
-    QUERY = f"""
-    Before answering, follow these steps:
-    1. Display all column names to understand the data structure.
-    2. Handle missing values, convert data types if necessary.
-    3. Perform data analysis to derive insights.
-    {question}
-    - Always attempt at least two different methods to solve the problem.
-    - Never fabricate answers; rely solely on the dataset.
-    - Explain how you arrived at the answer, specifying column names used.
-    """
-    try:
-        res = chatbot.invoke(QUERY)
-        st.session_state["chatbot_answer"] = res.get("output", "No valid response generated.")
-    except ValueError as e:
-        st.session_state["chatbot_answer"] = "An error occurred: " + str(e)
-
-if st.session_state["chatbot_answer"]:
-    st.write("Chatbot Answer:")
-    st.markdown(st.session_state["chatbot_answer"])
-
+# Nutrient Analysis Section
+st.subheader("Nutrient Analysis")
 # Define nutrient columns (exclude non-nutrient columns and "Calories per 100g")
 if not df.empty:
     nutrient_columns = [
@@ -110,7 +79,6 @@ if not df.empty:
 else:
     nutrient_columns = []
 
-st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox(
     "Select Nutrient",
     ["None Selected"] + sorted(nutrient_columns),
@@ -277,7 +245,6 @@ if selected_nutrient != "None Selected":
  
             # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
             final_df = assign_clusters(final_df, selected_nutrient, "Calories per 100g", 3)
-            # Also round numeric values before plotting
             final_df["Calories per 100g"] = final_df["Calories per 100g"].round(2)
             final_df[selected_nutrient] = final_df[selected_nutrient].round(2)
             fig_cal = px.scatter(
@@ -305,3 +272,36 @@ if selected_nutrient != "None Selected":
             fig_cal.update_traces(marker=dict(size=12))
             fig_cal.update_layout(showlegend=False)
             st.plotly_chart(fig_cal)
+
+# -------------------------------
+# Ask the Nutrition Chatbot Section (Moved to End)
+# -------------------------------
+st.subheader("Ask the Nutrition Chatbot")
+if "chatbot_answer" not in st.session_state:
+    st.session_state["chatbot_answer"] = None
+
+question = st.text_area(
+    "Enter your question:",
+    "Which food categories have the highest nutrient density per calorie, particularly for protein, fat, and non-sugar carbohydrates?",
+)
+
+if st.button("Get Answer"):
+    QUERY = f"""
+    Before answering, follow these steps:
+    1. Display all column names to understand the data structure.
+    2. Handle missing values, convert data types if necessary.
+    3. Perform data analysis to derive insights.
+    {question}
+    - Always attempt at least two different methods to solve the problem.
+    - Never fabricate answers; rely solely on the dataset.
+    - Explain how you arrived at the answer, specifying column names used.
+    """
+    try:
+        res = chatbot.invoke(QUERY)
+        st.session_state["chatbot_answer"] = res.get("output", "No valid response generated.")
+    except ValueError as e:
+        st.session_state["chatbot_answer"] = "An error occurred: " + str(e)
+
+if st.session_state["chatbot_answer"]:
+    st.write("Chatbot Answer:")
+    st.markdown(st.session_state["chatbot_answer"])
