@@ -16,16 +16,13 @@ def assign_clusters(df, feature, calories_col, n_clusters=3):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     clusters = kmeans.fit_predict(df[[feature, calories_col]])
     df["cluster"] = clusters
-
     # Compute mean calories per cluster and sort descending
     cluster_means = df.groupby("cluster")[calories_col].mean().sort_values(ascending=False)
     mapping = {}
     for new_label, old_label in enumerate(cluster_means.index):
         mapping[old_label] = new_label
-
-    # Remap cluster to ensure 0 -> highest cal, 1 -> middle, 2 -> lowest
     df["cluster"] = df["cluster"].map(mapping)
-    # Convert to string so Plotly applies discrete colors, not a continuous scale
+    # Convert to string so Plotly applies discrete colors
     df["cluster"] = df["cluster"].astype(str)
     return df
 
@@ -34,7 +31,6 @@ def professional_label(col_name: str) -> str:
     """Remove 'per 100g' from nutrient names and rename 'Calories per 100g' to 'Calories'."""
     if col_name == "Calories per 100g":
         return "Calories"
-    # Remove any occurrence of " per 100g"
     return col_name.replace(" per 100g", "")
 
 # Load API key
@@ -64,12 +60,11 @@ chatbot = create_pandas_dataframe_agent(
 )
 
 # Streamlit UI
-st.title("Nutritional Data Explorer and Chatbot")
+st.title("Nutrition Insights & Chatbot")
 
-# (The "Explore Food Nutrient Data" and "Summary Statistics" sections have been removed)
+# Nutrient Analysis & Visualization Section
+st.subheader("Nutrient Analysis & Visualization")
 
-# Nutrient Analysis Section
-st.subheader("Nutrient Analysis")
 # Define nutrient columns (exclude non-nutrient columns and "Calories per 100g")
 if not df.empty:
     nutrient_columns = [
@@ -86,18 +81,14 @@ selected_nutrient = st.selectbox(
 )
 
 if selected_nutrient != "None Selected":
-    # Cleaned label for the selected nutrient
     title_nutrient = professional_label(selected_nutrient)
     
-    # -------------------------------
     # Bar Chart: Average nutrient by Food Category
-    # -------------------------------
     grouped_category = (
         df.groupby("Food Category", as_index=False)[selected_nutrient]
         .mean()
         .sort_values(selected_nutrient, ascending=False)
     )
-    # Round the aggregated nutrient values
     grouped_category[selected_nutrient] = grouped_category[selected_nutrient].round(2)
     fig = px.bar(
         grouped_category,
@@ -114,9 +105,7 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # -------------------------------
     # Scatter Plot: Nutrient vs Calories by Food Category (Clusters)
-    # -------------------------------
     grouped_df = (
         df.groupby("Food Category", as_index=False)
         .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})
@@ -125,7 +114,6 @@ if selected_nutrient != "None Selected":
     grouped_df["Calories per 100g"] = grouped_df["Calories per 100g"].round(2)
     grouped_df[selected_nutrient] = grouped_df[selected_nutrient].round(2)
     grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
-    
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
@@ -152,9 +140,7 @@ if selected_nutrient != "None Selected":
     fig_cal.update_layout(showlegend=False)
     st.plotly_chart(fig_cal)
 
-    # -------------------------------
     # Filtering by Food Category
-    # -------------------------------
     food_categories = df["Food Category"].dropna().unique().tolist()
     selected_category = st.selectbox(
         "Select Food Category",
@@ -222,9 +208,7 @@ if selected_nutrient != "None Selected":
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
-        # -------------------------------
         # Filtering by Food Subcategory
-        # -------------------------------
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
         selected_subcategory = st.selectbox(
             "Select Food Subcategory",
@@ -274,15 +258,15 @@ if selected_nutrient != "None Selected":
             st.plotly_chart(fig_cal)
 
 # -------------------------------
-# Ask the Nutrition Chatbot Section (Moved to End)
+# Chat with Our Nutrition Bot Section (Moved to End)
 # -------------------------------
-st.subheader("Ask the Nutrition Chatbot")
+st.subheader("Chat with Our Nutrition Bot")
 if "chatbot_answer" not in st.session_state:
     st.session_state["chatbot_answer"] = None
 
 question = st.text_area(
     "Enter your question:",
-    "Which food categories have the highest nutrient density per calorie, particularly for protein, fat, and non-sugar carbohydrates?",
+    ""  # No predefined text
 )
 
 if st.button("Get Answer"):
