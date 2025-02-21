@@ -95,7 +95,7 @@ if selected_nutrient != "Select":
         y="Food Category", 
         x=selected_nutrient,
         title=f"Average {selected_nutrient} per Food Category",
-        labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
+        labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient}"},
         orientation='h',
         color_discrete_sequence=["#f6a600"]
     )
