@@ -59,6 +59,8 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True,
 )
 
+st.image(header.png)
+
 # Streamlit UI
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
