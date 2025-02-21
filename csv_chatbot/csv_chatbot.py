@@ -127,7 +127,7 @@ if selected_nutrient != "Select":
             y="Food Subcategory", 
             x=selected_nutrient,
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
-            labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
+            labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient}"},
             orientation='h',
             color_discrete_sequence=["#f6a600"]
         )
