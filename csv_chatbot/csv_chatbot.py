@@ -65,10 +65,8 @@ chatbot = create_pandas_dataframe_agent(
 
 # Streamlit UI
 st.title("Nutritional Data Explorer and Chatbot")
-
 st.subheader("Explore Food Nutrient Data")
 st.write(df.head())
-
 st.subheader("Summary Statistics")
 st.write(df.describe())
 
@@ -131,6 +129,8 @@ if selected_nutrient != "None Selected":
         .mean()
         .sort_values(selected_nutrient, ascending=False)
     )
+    # Round the aggregated nutrient values
+    grouped_category[selected_nutrient] = grouped_category[selected_nutrient].round(2)
     fig = px.bar(
         grouped_category,
         y="Food Category", 
@@ -154,24 +154,26 @@ if selected_nutrient != "None Selected":
         .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})
         .dropna()
     )
+    grouped_df["Calories per 100g"] = grouped_df["Calories per 100g"].round(2)
+    grouped_df[selected_nutrient] = grouped_df[selected_nutrient].round(2)
     grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
     
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
         y="Calories per 100g",
-        title=f"Average {title_nutrient} vs {professional_label('Calories per 100g')} by Food Category",
+        title=f"Food Category Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
         color="cluster",
         hover_data={
             "Food Category": True,
             selected_nutrient: True,
             "Calories per 100g": True,
-            "cluster": False  # Hide cluster ID in hover
+            "cluster": False
         },
         color_discrete_map={
-            "0": "#d93b3b",   # highest
-            "1": "#f6a600",   # middle
-            "2": "#a0d606"    # lowest
+            "0": "#d93b3b",   # highest calories
+            "1": "#f6a600",   # middle calories
+            "2": "#a0d606"    # lowest calories
         },
         labels={
             selected_nutrient: title_nutrient,
@@ -201,6 +203,7 @@ if selected_nutrient != "None Selected":
             .mean()
             .sort_values(selected_nutrient, ascending=False)
         )
+        grouped_subcat[selected_nutrient] = grouped_subcat[selected_nutrient].round(2)
         fig = px.bar(
             grouped_subcat,
             y="Food Subcategory", 
@@ -222,12 +225,14 @@ if selected_nutrient != "None Selected":
             .agg({selected_nutrient: "mean", "Calories per 100g": "mean"})
             .dropna()
         )
+        grouped_subcat_scatter["Calories per 100g"] = grouped_subcat_scatter["Calories per 100g"].round(2)
+        grouped_subcat_scatter[selected_nutrient] = grouped_subcat_scatter[selected_nutrient].round(2)
         grouped_subcat_scatter = assign_clusters(grouped_subcat_scatter, selected_nutrient, "Calories per 100g", 3)
         fig_cal = px.scatter(
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
-            title=f"Average {title_nutrient} vs {professional_label('Calories per 100g')} by Food Subcategory",
+            title=f"Food Subcategory Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
             color="cluster",
             hover_data={
                 "Food Subcategory": True,
@@ -249,7 +254,9 @@ if selected_nutrient != "None Selected":
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
+        # -------------------------------
         # Filtering by Food Subcategory
+        # -------------------------------
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
         selected_subcategory = st.selectbox(
             "Select Food Subcategory",
@@ -260,17 +267,22 @@ if selected_nutrient != "None Selected":
         if selected_subcategory != "None Selected":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory].copy()
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
+            # Round the selected nutrient column for the table display
+            final_df[selected_nutrient] = final_df[selected_nutrient].round(2)
             st.markdown(f"**{title_nutrient} by Food Name in {selected_subcategory}**")
             final_df_display = final_df[["Food Name", selected_nutrient]].rename(columns={selected_nutrient: title_nutrient})
             st.write(final_df_display)
             
             # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
             final_df = assign_clusters(final_df, selected_nutrient, "Calories per 100g", 3)
+            # Also round numeric values before plotting
+            final_df["Calories per 100g"] = final_df["Calories per 100g"].round(2)
+            final_df[selected_nutrient] = final_df[selected_nutrient].round(2)
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
-                title=f"{title_nutrient} vs {professional_label('Calories per 100g')} by Food Name",
+                title=f"Food Item Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
                 color="cluster",
                 hover_data={
                     "Food Name": True,
