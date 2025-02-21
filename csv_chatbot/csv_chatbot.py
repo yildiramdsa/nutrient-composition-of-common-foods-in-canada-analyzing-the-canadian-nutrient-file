@@ -63,7 +63,7 @@ chatbot = create_pandas_dataframe_agent(
 # -------------------------------
 # Header Image
 # -------------------------------
-st.image("header.png", use_column_width=True)
+st.image("header.png", use_container_width=True)
 
 # Main App Title
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
@@ -304,4 +304,4 @@ if st.session_state["chatbot_answer"]:
 # -------------------------------
 # Footer Image
 # -------------------------------
-st.image("footer.png", use_column_width=True)
+st.image("footer.png", use_container_width=True)
