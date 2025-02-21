@@ -84,10 +84,10 @@ else:
     nutrient_columns = []
 
 st.subheader("Nutrient Analysis")
-selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient_columns), key="nutrient_select")
+selected_nutrient = st.selectbox("Select Nutrient", ["None Selected"] + sorted(nutrient_columns), key="nutrient_select")
 filtered_df = df.copy()
 
-if selected_nutrient != "Select":
+if selected_nutrient != "None Selected":
     # Bar Chart: Average nutrient per Food Category with labels rounded to 2 decimals and outside the bar
     grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
     fig = px.bar(
@@ -116,9 +116,9 @@ if selected_nutrient != "Select":
     st.plotly_chart(fig_cal)
 
     food_categories = df["Food Category"].dropna().unique().tolist()
-    selected_category = st.selectbox("Select Food Category", ["Select Food Category"] + sorted(food_categories), key="category_select")
+    selected_category = st.selectbox("Select Food Category", ["None Selected"] + sorted(food_categories), key="category_select")
     
-    if selected_category != "Select Food Category":
+    if selected_category != "None Selected":
         filtered_df = df[df["Food Category"] == selected_category]
         # Bar Chart: Average nutrient per Food Subcategory with labels rounded to 2 decimals and outside the bar
         grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
@@ -145,9 +145,9 @@ if selected_nutrient != "Select":
         st.plotly_chart(fig_cal)
         
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
-        selected_subcategory = st.selectbox("Select Food Subcategory", ["Select Food Subcategory"] + sorted(food_subcategories), key="subcategory_select")
+        selected_subcategory = st.selectbox("Select Food Subcategory", ["None Selected"] + sorted(food_subcategories), key="subcategory_select")
         
-        if selected_subcategory != "Select Food Subcategory":
+        if selected_subcategory != "None Selected":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
             st.write("Filtered Data Table:")
