@@ -271,8 +271,8 @@ if selected_nutrient != "None Selected":
             final_df[selected_nutrient] = final_df[selected_nutrient].round(2)
             st.markdown(f"**{title_nutrient} by Food Name in {selected_subcategory}**")
             final_df_display = final_df[["Food Name", selected_nutrient]].rename(columns={selected_nutrient: title_nutrient})
-            st.write(final_df_display)
-            
+            st.table(final_df_display.style.hide_index())
+ 
             # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
             final_df = assign_clusters(final_df, selected_nutrient, "Calories per 100g", 3)
             # Also round numeric values before plotting
