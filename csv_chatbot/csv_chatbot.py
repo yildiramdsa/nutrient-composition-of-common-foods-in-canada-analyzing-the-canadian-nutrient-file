@@ -126,7 +126,7 @@ if selected_nutrient != "None Selected":
         grouped_df,
         x=selected_nutrient,
         y="Calories per 100g",
-        title=f"Food Category Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
+        title=f"Food Category Clusters - {title_nutrient} vs {professional_label('Calories per 100g')} (Avg.)",
         color="cluster",
         hover_data={
             "Food Category": True,
@@ -194,7 +194,7 @@ if selected_nutrient != "None Selected":
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
-            title=f"Food Subcategory Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
+            title=f"Food Subcategory Clusters - {title_nutrient} vs {professional_label('Calories per 100g')} (Avg.)",
             color="cluster",
             hover_data={
                 "Food Subcategory": True,
