@@ -76,9 +76,10 @@ if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
 
-# Define nutrient columns (exclude non-nutrient columns)
+# Define nutrient columns (exclude non-nutrient columns and calories)
 if not df.empty:
-    nutrient_columns = [col for col in df.columns if col not in ['Food Name', 'Food Subcategory', 'Food Category']]
+    nutrient_columns = [col for col in df.columns 
+                        if col not in ['Food Name', 'Food Subcategory', 'Food Category', 'Calories per 100g']]
 else:
     nutrient_columns = []
 
@@ -87,14 +88,17 @@ selected_nutrient = st.selectbox("Select Nutrient", ["Select"] + sorted(nutrient
 filtered_df = df.copy()
 
 if selected_nutrient != "Select":
-    # Bar Chart: Average nutrient per Food Category
+    # Bar Chart: Average nutrient per Food Category with labels and custom color
+    grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
     fig = px.bar(
-        df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
+        grouped_category,
         y="Food Category", 
         x=selected_nutrient,
         title=f"Average {selected_nutrient} per Food Category",
         labels={"Food Category": "Category", selected_nutrient: f"{selected_nutrient} content"},
-        orientation='h'
+        orientation='h',
+        text_auto=True,
+        color_discrete_sequence=["#2ab7ca"]
     )
     st.plotly_chart(fig)
     
@@ -116,13 +120,17 @@ if selected_nutrient != "Select":
     
     if selected_category != "All":
         filtered_df = df[df["Food Category"] == selected_category]
+        # Bar Chart: Average nutrient per Food Subcategory with labels and custom color
+        grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
         fig = px.bar(
-            filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False),
+            grouped_subcat,
             y="Food Subcategory", 
             x=selected_nutrient,
             title=f"Average {selected_nutrient} per Food Subcategory in {selected_category}",
             labels={"Food Subcategory": "Subcategory", selected_nutrient: f"{selected_nutrient} content"},
-            orientation='h'
+            orientation='h',
+            text_auto=True,
+            color_discrete_sequence=["#2ab7ca"]
         )
         st.plotly_chart(fig)
         
