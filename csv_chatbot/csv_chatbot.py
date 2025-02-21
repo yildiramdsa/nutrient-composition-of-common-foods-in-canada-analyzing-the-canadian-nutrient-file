@@ -260,7 +260,7 @@ if selected_nutrient != "None Selected":
         if selected_subcategory != "None Selected":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory].copy()
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
-            st.write("Filtered Data Table:")
+            st.write(f"{title_nutrient} by Food Name in {selected_subcategory}")
             st.write(final_df[["Food Name", selected_nutrient]])
             
             # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
