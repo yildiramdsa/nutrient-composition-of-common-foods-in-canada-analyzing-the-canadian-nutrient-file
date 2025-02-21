@@ -29,6 +29,14 @@ def assign_clusters(df, feature, calories_col, n_clusters=3):
     df["cluster"] = df["cluster"].astype(str)
     return df
 
+# Helper function to make column labels more professional
+def professional_label(col_name: str) -> str:
+    """Remove 'per 100g' from nutrient names and rename 'Calories per 100g' to 'Calories'."""
+    if col_name == "Calories per 100g":
+        return "Calories"
+    # Remove any occurrence of " per 100g"
+    return col_name.replace(" per 100g", "")
+
 # Load API key
 load_dotenv()
 openai_key = st.secrets["OPENAI_API_KEY"]
@@ -95,7 +103,7 @@ if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
 
-# Define nutrient columns (exclude non-nutrient columns and calories)
+# Define nutrient columns (exclude non-nutrient columns and "Calories per 100g")
 if not df.empty:
     nutrient_columns = [
         col for col in df.columns 
@@ -105,10 +113,19 @@ else:
     nutrient_columns = []
 
 st.subheader("Nutrient Analysis")
-selected_nutrient = st.selectbox("Select Nutrient", ["None Selected"] + sorted(nutrient_columns), key="nutrient_select")
+selected_nutrient = st.selectbox(
+    "Select Nutrient",
+    ["None Selected"] + sorted(nutrient_columns),
+    key="nutrient_select"
+)
 
 if selected_nutrient != "None Selected":
+    # Cleaned label for the selected nutrient
+    title_nutrient = professional_label(selected_nutrient)
+    
+    # -------------------------------
     # Bar Chart: Average nutrient by Food Category
+    # -------------------------------
     grouped_category = (
         df.groupby("Food Category", as_index=False)[selected_nutrient]
         .mean()
@@ -118,26 +135,32 @@ if selected_nutrient != "None Selected":
         grouped_category,
         y="Food Category", 
         x=selected_nutrient,
-        title=f"Average {selected_nutrient} by Food Category",
-        labels={"Food Category": "Food Category", selected_nutrient: f"{selected_nutrient}"},
+        title=f"Average {title_nutrient} by Food Category",
+        labels={
+            "Food Category": "Food Category",
+            selected_nutrient: title_nutrient
+        },
         orientation='h',
         color_discrete_sequence=["#f6a600"]
     )
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
+    # -------------------------------
     # Scatter Plot: Nutrient vs Calories by Food Category (Clusters)
+    # -------------------------------
     grouped_df = (
         df.groupby("Food Category", as_index=False)
         .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})
         .dropna()
     )
     grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
+    
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
         y="Calories per 100g",
-        title=f"{selected_nutrient} vs Calories by Food Category (Clusters)",
+        title=f"{title_nutrient} vs {professional_label('Calories per 100g')} by Food Category (Clusters)",
         color="cluster",
         hover_data={
             "Food Category": True,
@@ -149,15 +172,25 @@ if selected_nutrient != "None Selected":
             "0": "#d93b3b",   # highest
             "1": "#f6a600",   # middle
             "2": "#a0d606"    # lowest
+        },
+        labels={
+            selected_nutrient: title_nutrient,
+            "Calories per 100g": professional_label("Calories per 100g")
         }
     )
     fig_cal.update_traces(marker=dict(size=12))
-    fig_cal.update_layout(showlegend=False)  # Hide legend
+    fig_cal.update_layout(showlegend=False)
     st.plotly_chart(fig_cal)
 
+    # -------------------------------
     # Filtering by Food Category
+    # -------------------------------
     food_categories = df["Food Category"].dropna().unique().tolist()
-    selected_category = st.selectbox("Select Food Category", ["None Selected"] + sorted(food_categories), key="category_select")
+    selected_category = st.selectbox(
+        "Select Food Category",
+        ["None Selected"] + sorted(food_categories),
+        key="category_select"
+    )
     
     if selected_category != "None Selected":
         filtered_df = df[df["Food Category"] == selected_category]
@@ -172,8 +205,11 @@ if selected_nutrient != "None Selected":
             grouped_subcat,
             y="Food Subcategory", 
             x=selected_nutrient,
-            title=f"Average {selected_nutrient} by Food Subcategory in {selected_category}",
-            labels={"Food Subcategory": "Food Subcategory", selected_nutrient: f"{selected_nutrient}"},
+            title=f"Average {title_nutrient} by Food Subcategory in {selected_category}",
+            labels={
+                "Food Subcategory": "Food Subcategory",
+                selected_nutrient: title_nutrient
+            },
             orientation='h',
             color_discrete_sequence=["#f6a600"]
         )
@@ -191,7 +227,7 @@ if selected_nutrient != "None Selected":
             grouped_subcat_scatter,
             x=selected_nutrient,
             y="Calories per 100g",
-            title=f"{selected_nutrient} vs Calories by Food Subcategory (Clusters)",
+            title=f"{title_nutrient} vs {professional_label('Calories per 100g')} by Food Subcategory (Clusters)",
             color="cluster",
             hover_data={
                 "Food Subcategory": True,
@@ -203,6 +239,10 @@ if selected_nutrient != "None Selected":
                 "0": "#d93b3b",
                 "1": "#f6a600",
                 "2": "#a0d606"
+            },
+            labels={
+                selected_nutrient: title_nutrient,
+                "Calories per 100g": professional_label("Calories per 100g")
             }
         )
         fig_cal.update_traces(marker=dict(size=12))
@@ -211,7 +251,11 @@ if selected_nutrient != "None Selected":
         
         # Filtering by Food Subcategory
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
-        selected_subcategory = st.selectbox("Select Food Subcategory", ["None Selected"] + sorted(food_subcategories), key="subcategory_select")
+        selected_subcategory = st.selectbox(
+            "Select Food Subcategory",
+            ["None Selected"] + sorted(food_subcategories),
+            key="subcategory_select"
+        )
         
         if selected_subcategory != "None Selected":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory].copy()
@@ -225,7 +269,7 @@ if selected_nutrient != "None Selected":
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
-                title=f"{selected_nutrient} vs Calories by Food Item (Clusters)",
+                title=f"{title_nutrient} vs {professional_label('Calories per 100g')} by Food Item (Clusters)",
                 color="cluster",
                 hover_data={
                     "Food Name": True,
@@ -237,6 +281,10 @@ if selected_nutrient != "None Selected":
                     "0": "#d93b3b",
                     "1": "#f6a600",
                     "2": "#a0d606"
+                },
+                labels={
+                    selected_nutrient: title_nutrient,
+                    "Calories per 100g": professional_label("Calories per 100g")
                 }
             )
             fig_cal.update_traces(marker=dict(size=12))
