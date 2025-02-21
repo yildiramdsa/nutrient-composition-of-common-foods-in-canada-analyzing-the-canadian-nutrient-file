@@ -243,7 +243,7 @@ if selected_nutrient != "None Selected":
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
-                title=f"Food Item Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
+                title=f"Food Name Clusters - {title_nutrient} vs {professional_label('Calories per 100g')}",
                 color="cluster",
                 hover_data={
                     "Food Name": True,
