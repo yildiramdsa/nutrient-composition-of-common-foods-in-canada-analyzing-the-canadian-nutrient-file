@@ -59,7 +59,7 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True,
 )
 
-st.image(os.path.abspath("header.png"), use_container_width=True)
+st.image(os.path.abspath("UCalgary-vertical-logo_1.png"), use_container_width=True)
 
 # Streamlit UI
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
