@@ -140,8 +140,8 @@ if selected_nutrient != "None Selected":
             "2": "#a0d606"    # lowest calories
         },
         labels={
-            selected_nutrient: title_nutrient,
-            "Calories per 100g": professional_label("Calories per 100g")
+            selected_nutrient: f"Avg. {title_nutrient}",
+            "Calories per 100g": f"Avg. {professional_label("Calories per 100g")}"
         }
     )
     fig_cal.update_traces(marker=dict(size=12))
