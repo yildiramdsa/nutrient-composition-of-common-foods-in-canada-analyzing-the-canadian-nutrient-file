@@ -16,12 +16,17 @@ def assign_clusters(df, feature, calories_col, n_clusters=3):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     clusters = kmeans.fit_predict(df[[feature, calories_col]])
     df["cluster"] = clusters
+
     # Compute mean calories per cluster and sort descending
     cluster_means = df.groupby("cluster")[calories_col].mean().sort_values(ascending=False)
     mapping = {}
     for new_label, old_label in enumerate(cluster_means.index):
         mapping[old_label] = new_label
+
+    # Remap cluster to ensure 0 -> highest cal, 1 -> middle, 2 -> lowest
     df["cluster"] = df["cluster"].map(mapping)
+    # Convert to string so Plotly applies discrete colors, not a continuous scale
+    df["cluster"] = df["cluster"].astype(str)
     return df
 
 # Load API key
@@ -92,18 +97,23 @@ if st.session_state["chatbot_answer"]:
 
 # Define nutrient columns (exclude non-nutrient columns and calories)
 if not df.empty:
-    nutrient_columns = [col for col in df.columns 
-                        if col not in ['Food Name', 'Food Subcategory', 'Food Category', 'Calories per 100g']]
+    nutrient_columns = [
+        col for col in df.columns 
+        if col not in ['Food Name', 'Food Subcategory', 'Food Category', 'Calories per 100g']
+    ]
 else:
     nutrient_columns = []
 
 st.subheader("Nutrient Analysis")
 selected_nutrient = st.selectbox("Select Nutrient", ["None Selected"] + sorted(nutrient_columns), key="nutrient_select")
-filtered_df = df.copy()
 
 if selected_nutrient != "None Selected":
     # Bar Chart: Average nutrient by Food Category
-    grouped_category = df.groupby("Food Category", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
+    grouped_category = (
+        df.groupby("Food Category", as_index=False)[selected_nutrient]
+        .mean()
+        .sort_values(selected_nutrient, ascending=False)
+    )
     fig = px.bar(
         grouped_category,
         y="Food Category", 
@@ -116,11 +126,12 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # Scatter Plot: Nutrient vs Calories by Food Category with K-Means Clustering
-    grouped_df = df.groupby("Food Category", as_index=False).agg({
-        "Calories per 100g": "mean", 
-        selected_nutrient: "mean"
-    }).dropna()
+    # Scatter Plot: Nutrient vs Calories by Food Category (Clusters)
+    grouped_df = (
+        df.groupby("Food Category", as_index=False)
+        .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})
+        .dropna()
+    )
     grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
     fig_cal = px.scatter(
         grouped_df,
@@ -132,21 +143,31 @@ if selected_nutrient != "None Selected":
             "Food Category": True,
             selected_nutrient: True,
             "Calories per 100g": True,
-            "cluster": False  # do not show cluster info in hover
+            "cluster": False  # Hide cluster ID in hover
         },
-        color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
+        color_discrete_map={
+            "0": "#d93b3b",   # highest
+            "1": "#f6a600",   # middle
+            "2": "#a0d606"    # lowest
+        }
     )
     fig_cal.update_traces(marker=dict(size=12))
-    fig_cal.update_layout(showlegend=False)
+    fig_cal.update_layout(showlegend=False)  # Hide legend
     st.plotly_chart(fig_cal)
 
+    # Filtering by Food Category
     food_categories = df["Food Category"].dropna().unique().tolist()
     selected_category = st.selectbox("Select Food Category", ["None Selected"] + sorted(food_categories), key="category_select")
     
     if selected_category != "None Selected":
         filtered_df = df[df["Food Category"] == selected_category]
+        
         # Bar Chart: Average nutrient by Food Subcategory
-        grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
+        grouped_subcat = (
+            filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient]
+            .mean()
+            .sort_values(selected_nutrient, ascending=False)
+        )
         fig = px.bar(
             grouped_subcat,
             y="Food Subcategory", 
@@ -159,11 +180,12 @@ if selected_nutrient != "None Selected":
         fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
         st.plotly_chart(fig)
         
-        # Scatter Plot: Nutrient vs Calories by Food Subcategory with K-Means Clustering
-        grouped_subcat_scatter = filtered_df.groupby("Food Subcategory", as_index=False).agg({
-            selected_nutrient: "mean", 
-            "Calories per 100g": "mean"
-        }).dropna()
+        # Scatter Plot: Nutrient vs Calories by Food Subcategory (Clusters)
+        grouped_subcat_scatter = (
+            filtered_df.groupby("Food Subcategory", as_index=False)
+            .agg({selected_nutrient: "mean", "Calories per 100g": "mean"})
+            .dropna()
+        )
         grouped_subcat_scatter = assign_clusters(grouped_subcat_scatter, selected_nutrient, "Calories per 100g", 3)
         fig_cal = px.scatter(
             grouped_subcat_scatter,
@@ -177,23 +199,28 @@ if selected_nutrient != "None Selected":
                 "Calories per 100g": True,
                 "cluster": False
             },
-            color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
+            color_discrete_map={
+                "0": "#d93b3b",
+                "1": "#f6a600",
+                "2": "#a0d606"
+            }
         )
         fig_cal.update_traces(marker=dict(size=12))
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
+        # Filtering by Food Subcategory
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
         selected_subcategory = st.selectbox("Select Food Subcategory", ["None Selected"] + sorted(food_subcategories), key="subcategory_select")
         
         if selected_subcategory != "None Selected":
-            final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
+            final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory].copy()
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
             st.write("Filtered Data Table:")
             st.write(final_df[["Food Name", selected_nutrient]])
             
-            # Scatter Plot: Nutrient vs Calories by Food Item with K-Means Clustering
-            final_df = assign_clusters(final_df.copy(), selected_nutrient, "Calories per 100g", 3)
+            # Scatter Plot: Nutrient vs Calories by Food Item (Clusters)
+            final_df = assign_clusters(final_df, selected_nutrient, "Calories per 100g", 3)
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
@@ -206,7 +233,11 @@ if selected_nutrient != "None Selected":
                     "Calories per 100g": True,
                     "cluster": False
                 },
-                color_discrete_map={0: "#d93b3b", 1: "#f6a600", 2: "#a0d606"}
+                color_discrete_map={
+                    "0": "#d93b3b",
+                    "1": "#f6a600",
+                    "2": "#a0d606"
+                }
             )
             fig_cal.update_traces(marker=dict(size=12))
             fig_cal.update_layout(showlegend=False)
