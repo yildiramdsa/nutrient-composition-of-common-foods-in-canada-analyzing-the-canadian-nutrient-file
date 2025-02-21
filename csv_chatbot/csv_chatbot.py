@@ -7,6 +7,7 @@ import streamlit as st
 import plotly.express as px
 import statsmodels.api as sm
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+from sklearn.cluster import KMeans
 import warnings
 warnings.filterwarnings("ignore", message="is_sparse is deprecated")
 
@@ -165,17 +166,19 @@ if selected_nutrient != "None Selected":
             st.write("Filtered Data Table:")
             st.write(final_df[["Food Name", selected_nutrient]])
             
-            # Scatter Plot: Nutrient vs Calories by Food Item
-            # Hover labels: Food Name, then selected nutrient, then Calories; regression line added for trend
+            # K-Means Clustering Scatter Plot: Nutrient vs Calories by Food Item
+            # Perform k-means clustering on the selected nutrient and Calories per 100g
+            kmeans = KMeans(n_clusters=3, random_state=42)
+            final_df["cluster"] = kmeans.fit_predict(final_df[[selected_nutrient, "Calories per 100g"]])
+            
+            # Hover labels: Food Name, then selected nutrient, then Calories per 100g
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
-                title=f"{selected_nutrient} vs Calories by Food Item",
-                color_discrete_sequence=["#f6a600"],
-                trendline="ols",
+                title=f"{selected_nutrient} vs Calories by Food Item (K-Means Clustering)",
+                color="cluster",
                 hover_data=["Food Name", selected_nutrient, "Calories per 100g"]
             )
-            fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
-            fig_cal.update_layout(showlegend=False)
+            fig_cal.update_traces(marker=dict(size=12))
             st.plotly_chart(fig_cal)
