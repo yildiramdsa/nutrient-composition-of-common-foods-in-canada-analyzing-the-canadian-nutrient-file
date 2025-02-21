@@ -102,23 +102,23 @@ if selected_nutrient != "Select":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
-    # Scatter Plot: Calories vs Nutrient per Food Category
+    # Scatter Plot: Nutrient vs Calories per Food Category (Calories on y-axis)
     grouped_df = df.groupby("Food Category", as_index=False)\
                    .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})\
                    .dropna()
     fig_cal = px.scatter(
         grouped_df,
-        x="Calories per 100g",
-        y=selected_nutrient,
+        x=selected_nutrient,
+        y="Calories per 100g",
         color="Food Category",
-        title=f"Calories vs {selected_nutrient} per Food Category",
+        title=f"{selected_nutrient} vs Calories per Food Category",
     )
     st.plotly_chart(fig_cal)
 
     food_categories = df["Food Category"].dropna().unique().tolist()
-    selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories), key="category_select")
+    selected_category = st.selectbox("Select Food Category", ["Select Food Category"] + sorted(food_categories), key="category_select")
     
-    if selected_category != "All":
+    if selected_category != "Select Food Category":
         filtered_df = df[df["Food Category"] == selected_category]
         # Bar Chart: Average nutrient per Food Subcategory with labels rounded to 2 decimals and outside the bar
         grouped_subcat = filtered_df.groupby("Food Subcategory", as_index=False)[selected_nutrient].mean().sort_values(selected_nutrient, ascending=False)
@@ -136,18 +136,18 @@ if selected_nutrient != "Select":
         
         fig_cal = px.scatter(
             filtered_df,
-            x="Calories per 100g",
-            y=selected_nutrient,
+            x=selected_nutrient,
+            y="Calories per 100g",
             color="Food Subcategory",
             hover_data=["Food Name"],
-            title=f"Calories vs {selected_nutrient} per Food Subcategory",
+            title=f"{selected_nutrient} vs Calories per Food Subcategory",
         )
         st.plotly_chart(fig_cal)
         
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
-        selected_subcategory = st.selectbox("Select Food Subcategory", ["All"] + sorted(food_subcategories), key="subcategory_select")
+        selected_subcategory = st.selectbox("Select Food Subcategory", ["Select Food Subcategory"] + sorted(food_subcategories), key="subcategory_select")
         
-        if selected_subcategory != "All":
+        if selected_subcategory != "Select Food Subcategory":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory]
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
             st.write("Filtered Data Table:")
@@ -155,10 +155,10 @@ if selected_nutrient != "Select":
             
             fig_cal = px.scatter(
                 final_df,
-                x="Calories per 100g",
-                y=selected_nutrient,
+                x=selected_nutrient,
+                y="Calories per 100g",
                 color="Food Name",
                 hover_data=["Food Name"],
-                title=f"Calories vs {selected_nutrient} per Food Item",
+                title=f"{selected_nutrient} vs Calories per Food Item",
             )
             st.plotly_chart(fig_cal)
