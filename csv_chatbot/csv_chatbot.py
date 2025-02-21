@@ -16,6 +16,7 @@ def assign_clusters(df, feature, calories_col, n_clusters=3):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     clusters = kmeans.fit_predict(df[[feature, calories_col]])
     df["cluster"] = clusters
+
     # Compute mean calories per cluster and sort descending
     cluster_means = df.groupby("cluster")[calories_col].mean().sort_values(ascending=False)
     mapping = {}
@@ -59,11 +60,16 @@ chatbot = create_pandas_dataframe_agent(
     allow_dangerous_code=True,
 )
 
-# Streamlit UI
+# -------------------------------
+# Header Image
+# -------------------------------
+st.image("header.png", use_column_width=True)
+
+# Main App Title
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
 # Nutrient Analysis & Visualization Section
-st.subheader("Discover Your Food’s Nutrient Profile")
+st.subheader("Nutrient Analysis & Visualization")
 
 # Define nutrient columns (exclude non-nutrient columns and "Calories per 100g")
 if not df.empty:
@@ -83,7 +89,9 @@ selected_nutrient = st.selectbox(
 if selected_nutrient != "None Selected":
     title_nutrient = professional_label(selected_nutrient)
     
+    # -------------------------------
     # Bar Chart: Average nutrient by Food Category
+    # -------------------------------
     grouped_category = (
         df.groupby("Food Category", as_index=False)[selected_nutrient]
         .mean()
@@ -105,7 +113,9 @@ if selected_nutrient != "None Selected":
     fig.update_traces(texttemplate='%{x:.2f}', textposition='outside')
     st.plotly_chart(fig)
     
+    # -------------------------------
     # Scatter Plot: Nutrient vs Calories by Food Category (Clusters)
+    # -------------------------------
     grouped_df = (
         df.groupby("Food Category", as_index=False)
         .agg({"Calories per 100g": "mean", selected_nutrient: "mean"})
@@ -114,6 +124,7 @@ if selected_nutrient != "None Selected":
     grouped_df["Calories per 100g"] = grouped_df["Calories per 100g"].round(2)
     grouped_df[selected_nutrient] = grouped_df[selected_nutrient].round(2)
     grouped_df = assign_clusters(grouped_df, selected_nutrient, "Calories per 100g", 3)
+    
     fig_cal = px.scatter(
         grouped_df,
         x=selected_nutrient,
@@ -140,7 +151,9 @@ if selected_nutrient != "None Selected":
     fig_cal.update_layout(showlegend=False)
     st.plotly_chart(fig_cal)
 
+    # -------------------------------
     # Filtering by Food Category
+    # -------------------------------
     food_categories = df["Food Category"].dropna().unique().tolist()
     selected_category = st.selectbox(
         "Select Food Category",
@@ -208,7 +221,9 @@ if selected_nutrient != "None Selected":
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
+        # -------------------------------
         # Filtering by Food Subcategory
+        # -------------------------------
         food_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
         selected_subcategory = st.selectbox(
             "Select Food Subcategory",
@@ -219,7 +234,6 @@ if selected_nutrient != "None Selected":
         if selected_subcategory != "None Selected":
             final_df = filtered_df[filtered_df["Food Subcategory"] == selected_subcategory].copy()
             final_df = final_df.sort_values(by=selected_nutrient, ascending=False)
-            # Round the selected nutrient column for the table display
             final_df[selected_nutrient] = final_df[selected_nutrient].round(2)
             st.markdown(f"**{title_nutrient} by Food Name in {selected_subcategory}**")
             final_df_display = final_df[["Food Name", selected_nutrient]].rename(columns={selected_nutrient: title_nutrient})
@@ -264,10 +278,7 @@ st.subheader("Ask About Your Food’s Nutrition")
 if "chatbot_answer" not in st.session_state:
     st.session_state["chatbot_answer"] = None
 
-question = st.text_area(
-    "Enter your question:",
-    ""  # No predefined text
-)
+question = st.text_area("Enter your question:", "")
 
 if st.button("Get Answer"):
     QUERY = f"""
@@ -289,3 +300,8 @@ if st.button("Get Answer"):
 if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
+
+# -------------------------------
+# Footer Image
+# -------------------------------
+st.image("footer.png", use_column_width=True)
