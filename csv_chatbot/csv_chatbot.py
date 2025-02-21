@@ -76,59 +76,6 @@ if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
 
-# Filtering Section (Category and Subcategory)
-st.subheader("Filter Food Data by Category and Subcategory")
-filtered_df = df.copy()
-
-food_categories = df["Food Category"].dropna().unique().tolist()
-selected_category = st.selectbox("Select Food Category", ["All"] + sorted(food_categories))
-
-if selected_category != "All":
-    filtered_df = filtered_df.loc[filtered_df["Food Category"] == selected_category]
-    filtered_subcategories = filtered_df["Food Subcategory"].dropna().unique().tolist()
-    selected_subcategory = st.selectbox(
-        "Select Food Subcategory",
-        ["All"] + sorted(filtered_subcategories),
-        disabled=False,
-    )
-else:
-    selected_subcategory = st.selectbox(
-        "Select Food Subcategory",
-        ["Select a category first"],
-        disabled=True,
-    )
-
-if selected_subcategory != "All" and selected_subcategory != "Select a category first":
-    filtered_df = filtered_df.loc[filtered_df["Food Subcategory"] == selected_subcategory]
-
-st.write("Filtered Data:")
-st.write(filtered_df)
-
-# Scatter Plot with Trend Line
-st.subheader("Nutrient Trends: Scatter Plot with Trend Line")
-columns = df.columns[3:].tolist()
-x_column = st.selectbox("Select X-axis (Nutrient)", columns)
-y_column = st.selectbox("Select Y-axis (Nutrient)", columns)
-
-if st.button("Generate Scatter Plot"):
-    if pd.api.types.is_numeric_dtype(filtered_df[x_column]) and pd.api.types.is_numeric_dtype(filtered_df[y_column]):
-        # Fit a linear regression model without overwriting the LLM model
-        X = sm.add_constant(filtered_df[x_column])
-        ols_model = sm.OLS(filtered_df[y_column], X).fit()
-        filtered_df["Trend"] = ols_model.predict(X)
-
-        fig = px.scatter(
-            filtered_df,
-            x=x_column,
-            y=y_column,
-            hover_data=["Food Name"],
-            trendline="ols",
-            title=f"Scatter Plot: {x_column} vs. {y_column}"
-        )
-        st.plotly_chart(fig)
-    else:
-        st.warning("Please select numeric columns for both X and Y axes.")
-
 # Define nutrient columns (exclude non-nutrient columns)
 if not df.empty:
     nutrient_columns = [col for col in df.columns if col not in ['Food Name', 'Food Subcategory', 'Food Category']]
