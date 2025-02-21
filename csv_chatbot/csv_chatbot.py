@@ -63,7 +63,7 @@ chatbot = create_pandas_dataframe_agent(
 st.title("What’s in Your Food? A Data-Driven Nutrient Analysis")
 
 # Nutrient Analysis & Visualization Section
-st.subheader("Nutrient Analysis & Visualization")
+st.subheader("Discover Your Food’s Nutrient Profile")
 
 # Define nutrient columns (exclude non-nutrient columns and "Calories per 100g")
 if not df.empty:
@@ -260,7 +260,7 @@ if selected_nutrient != "None Selected":
 # -------------------------------
 # Chat with Our Nutrition Bot Section (Moved to End)
 # -------------------------------
-st.subheader("Chat with Our Nutrition Bot")
+st.subheader("Ask About Your Food’s Nutrition")
 if "chatbot_answer" not in st.session_state:
     st.session_state["chatbot_answer"] = None
 
