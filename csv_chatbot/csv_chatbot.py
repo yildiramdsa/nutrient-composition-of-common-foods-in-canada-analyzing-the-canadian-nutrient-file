@@ -292,14 +292,4 @@ if st.session_state["chatbot_answer"]:
     st.write("Chatbot Answer:")
     st.markdown(st.session_state["chatbot_answer"])
 
-# Check if header.png exists, otherwise provide upload option
-if os.path.exists("footer.png"):
-    st.image("footer.png", use_container_width=True)
-else:
-    uploaded_file = st.file_uploader("Upload header.png", type=["png"])
-    if uploaded_file:
-        with open("footer.png", "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.image("footer.png", use_container_width=True)
-    else:
-        st.error("Error: header.png not found. Please upload the file.")
+st.image("footer.png", use_container_width=True)
