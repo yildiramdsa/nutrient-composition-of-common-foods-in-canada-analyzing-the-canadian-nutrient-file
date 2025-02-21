@@ -113,7 +113,7 @@ if selected_nutrient != "None Selected":
         title=f"{selected_nutrient} vs Calories by Food Category",
         color_discrete_sequence=["#f6a600"]
     )
-    fig_cal.update_traces(marker=dict(color="#f6a600"))
+    fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
     fig_cal.update_layout(showlegend=False)
     st.plotly_chart(fig_cal)
 
@@ -137,7 +137,7 @@ if selected_nutrient != "None Selected":
         st.plotly_chart(fig)
         
         # Scatter Plot: Nutrient vs Calories by Food Subcategory 
-        # Aggregate by Food Subcategory so that points represent subcategories (hover shows subcategory)
+        # Aggregated by Food Subcategory so that points represent subcategories
         grouped_subcat_scatter = filtered_df.groupby("Food Subcategory", as_index=False).agg({
             selected_nutrient: "mean", 
             "Calories per 100g": "mean"
@@ -150,7 +150,7 @@ if selected_nutrient != "None Selected":
             title=f"{selected_nutrient} vs Calories by Food Subcategory",
             color_discrete_sequence=["#f6a600"]
         )
-        fig_cal.update_traces(marker=dict(color="#f6a600"))
+        fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
         fig_cal.update_layout(showlegend=False)
         st.plotly_chart(fig_cal)
         
@@ -164,13 +164,16 @@ if selected_nutrient != "None Selected":
             st.write(final_df[["Food Name", selected_nutrient]])
             
             # Scatter Plot: Nutrient vs Calories by Food Item
+            # Add regression line and improve hover labels (Food Name, Food Category, Food Subcategory)
             fig_cal = px.scatter(
                 final_df,
                 x=selected_nutrient,
                 y="Calories per 100g",
                 title=f"{selected_nutrient} vs Calories by Food Item",
-                color_discrete_sequence=["#f6a600"]
+                color_discrete_sequence=["#f6a600"],
+                trendline="ols",
+                hover_data=["Food Name", "Food Category", "Food Subcategory"]
             )
-            fig_cal.update_traces(marker=dict(color="#f6a600"))
+            fig_cal.update_traces(marker=dict(color="#f6a600", size=12))
             fig_cal.update_layout(showlegend=False)
             st.plotly_chart(fig_cal)
