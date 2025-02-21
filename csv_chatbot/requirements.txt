@@ -8,3 +8,4 @@ plotly
 statsmodels
 python-dotenv
 tabulate
+scikit-learn
