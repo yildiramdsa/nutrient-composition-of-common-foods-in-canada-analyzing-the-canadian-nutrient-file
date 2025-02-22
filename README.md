@@ -14,8 +14,10 @@ The objective is to analyze food categories, subcategories, and individual foods
 
 This project analyzes the nutritional composition of Canadian foods using The Canadian Nutrient File dataset. Through data preprocessing, k-means clustering, and regression analysis, it standardizes nutrient values, classifies food subcategories by protein-to-fat ratios, and evaluates nutrient density per calorie. Insights are presented via interactive Tableau dashboards, while a LangChain-powered AI chatbot enables structured data queries, providing actionable insights for informed dietary choices.
 
+https://public.tableau.com/app/profile/alina.yildir/viz/WhatsinYourFoodAData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2
 https://public.tableau.com/app/profile/alina.yildir/viz/AData-DrivenNutrientAnalysisPerServing/AData-DrivenNutrientAnalysis
+https://yildiramdsa-nutrient-composition--csv-chatbotcsv-chatbot-kdmzcd.streamlit.app
 
 ### References
 Government of Canada. (n.d.). Canada’s food guide. Retrieved from https://food-guide.canada.ca/en/.  
