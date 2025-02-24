@@ -1,4 +1,7 @@
 # What’s in Your Food? A Data-Driven Nutrient Analysis
+![What’s in Your Food? A Data-Driven Nutrient Analysis](https://github.com/yildiramdsa/nutrient_composition_of_common_foods_in_canada_analyzing_the_canadian_nutrient_file/blob/main/documents/poster_by_alina_yildir.png)
+
+
 
 ### Introduction
 According to Canada’s Food Guide, maintaining a balance of nutrients such as protein, fibre, carbohydrates, and potassium contributes to better overall health. At the same time, reducing the intake of saturated fat, trans fat, sugar, sodium, and cholesterol plays a key role in minimizing health risks.
