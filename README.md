@@ -4,4 +4,4 @@
 
 Interactive dietary tools leveraging the Canadian Nutrient File—a Tableau dashboard for in-depth nutrient comparisons and a Streamlit app featuring dynamic visualizations, clustering analytics, and an AI chatbot for personalized nutrition guidance.
 
-**Interactive Tools & Links:** [Tableau Dashboard](https://public.tableau.com/app/profile/alina.yildir/viz/WhatsinYourFoodAData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2) · [Streamlit App & Chatbot](https://yildiramdsa-nutrient-composition--csv-chatbotcsv-chatbot-kdmzcd.streamlit.app)
+**Live Demo:** [What’s in Your Food? Tableau Dashboard](https://public.tableau.com/app/profile/alina.yildir/viz/WhatsinYourFoodAData-DrivenNutrientAnalysis/AData-DrivenNutrientAnalysis2) and [Nutrition Analysis Chatbot App](https://yildiramdsa-nutrient-composition--csv-chatbotcsv-chatbot-kdmzcd.streamlit.app)
